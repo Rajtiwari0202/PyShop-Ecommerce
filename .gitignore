@@ -1,8 +1,15 @@
-# .gitignore file example:
-env/
+# Python
 __pycache__/
 *.pyc
+
+# Virtual env
+venv/
+
+# Database
 db.sqlite3
-*.log
-*.pot
-*.py[cod]
+
+# VS Code
+.vscode/
+
+# OS
+.DS_Store
