@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Checkout</h2>
+
+<p>Total Amount: <strong>₹{{ total }}</strong></p>
+
+<form method="POST">
+    {% csrf_token %}
+
+    <input class="form-control mb-2" placeholder="Card Number">
+    <input class="form-control mb-2" placeholder="Expiry">
+    <input class="form-control mb-2" placeholder="CVV">
+
+    <button class="btn btn-primary">Pay Now</button>
+</form>
+
+{% endblock %}
