@@ -1,28 +1,14 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import Product
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 
-@login_required
-def checkout(request):
-    cart = request.session.get('cart', {})
+from .models import Product, Cart, CartItem, Order, OrderItem
 
-    if not cart:
-        return redirect('cart')
 
-    total = 0
-    for product_id, qty in cart.items():
-        product = Product.objects.get(id=product_id)
-        total += product.price * qty
+# ================= AUTH =================
 
-    if request.method == "POST":
-        # Fake payment success
-        request.session['cart'] = {}
-        return render(request, 'success.html', {'total': total})
-
-    return render(request, 'checkout.html', {'total': total})
 def signup_view(request):
     if request.method == "POST":
         username = request.POST['username']
@@ -59,6 +45,9 @@ def logout_view(request):
     logout(request)
     return redirect('product_list')
 
+
+# ================= PRODUCTS =================
+
 def product_list(request):
     products = Product.objects.all()
     return render(request, 'products/product_list.html', {'products': products})
@@ -69,80 +58,109 @@ def product_detail(request, id):
     return render(request, 'products/product_detail.html', {'product': product})
 
 
-def add_to_cart(request, id):
-    cart = request.session.get('cart', {})
+# ================= CART =================
 
-    if not isinstance(cart, dict):
-        cart = {}
+@login_required
+def cart_view(request):
+    cart, created = Cart.objects.get_or_create(user=request.user)
 
-    id = str(id)
-
-    cart[id] = cart.get(id, 0) + 1
-
-    request.session['cart'] = cart
-    request.session.modified = True
-
-    return redirect('cart')
-
-
-def remove_from_cart(request, id):
-    cart = request.session.get('cart', {})
-
-    id = str(id)
-    if id in cart:
-        del cart[id]
-
-    request.session['cart'] = cart
-    return redirect('cart')
-
-
-def increase_quantity(request, id):
-    cart = request.session.get('cart', {})
-    id = str(id)
-
-    if id in cart:
-        cart[id] += 1
-
-    request.session['cart'] = cart
-    return redirect('cart')
-
-
-def decrease_quantity(request, id):
-    cart = request.session.get('cart', {})
-    id = str(id)
-
-    if id in cart:
-        cart[id] -= 1
-
-        if cart[id] <= 0:
-            del cart[id]
-
-    request.session['cart'] = cart
-    return redirect('cart')
-
-
-def cart(request):
-    cart = request.session.get('cart', {})
-
-    if not isinstance(cart, dict):
-        cart = {}
-
-    cart_items = []
-    total_price = 0
-
-    for product_id, quantity in cart.items():
-        product = get_object_or_404(Product, id=product_id)
-
-        subtotal = product.price * quantity
-        total_price += subtotal
-
-        cart_items.append({
-            'product': product,
-            'quantity': quantity,
-            'subtotal': subtotal
-        })
+    cart_items = cart.items.all()
+    total_price = cart.total_price()
 
     return render(request, 'products/cart.html', {
         'cart_items': cart_items,
         'total_price': total_price
     })
+
+
+@login_required
+def add_to_cart(request, id):
+    product = get_object_or_404(Product, id=id)
+
+    cart, created = Cart.objects.get_or_create(user=request.user)
+
+    cart_item, created = CartItem.objects.get_or_create(
+        cart=cart,
+        product=product
+    )
+
+    if not created:
+        cart_item.quantity += 1
+        cart_item.save()
+
+    return redirect('cart')
+
+
+@login_required
+def remove_from_cart(request, id):
+    cart = Cart.objects.get(user=request.user)
+    product = get_object_or_404(Product, id=id)
+
+    CartItem.objects.filter(cart=cart, product=product).delete()
+
+    return redirect('cart')
+
+
+@login_required
+def increase_quantity(request, id):
+    cart = Cart.objects.get(user=request.user)
+    product = get_object_or_404(Product, id=id)
+
+    item = CartItem.objects.get(cart=cart, product=product)
+    item.quantity += 1
+    item.save()
+
+    return redirect('cart')
+
+
+@login_required
+def decrease_quantity(request, id):
+    cart = Cart.objects.get(user=request.user)
+    product = get_object_or_404(Product, id=id)
+
+    item = CartItem.objects.get(cart=cart, product=product)
+
+    item.quantity -= 1
+
+    if item.quantity <= 0:
+        item.delete()
+    else:
+        item.save()
+
+    return redirect('cart')
+
+
+# ================= CHECKOUT =================
+
+@login_required
+def checkout(request):
+    cart = Cart.objects.get(user=request.user)
+
+    if cart.items.count() == 0:
+        return redirect('cart')
+
+    total = cart.total_price()
+
+    if request.method == "POST":
+        # Create Order
+        order = Order.objects.create(
+            user=request.user,
+            total_amount=total,
+            status="Completed"
+        )
+
+        # Copy items
+        for item in cart.items.all():
+            OrderItem.objects.create(
+                order=order,
+                product=item.product,
+                quantity=item.quantity,
+                price=item.product.price
+            )
+
+        # Clear cart
+        cart.items.all().delete()
+
+        return render(request, 'success.html', {'total': total})
+
+    return render(request, 'checkout.html', {'total': total})
