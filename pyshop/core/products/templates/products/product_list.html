@@ -2,30 +2,34 @@
 
 {% block content %}
 
-<h2 class="mb-4">Products</h2>
+<h2 class="text-center mb-4">Products</h2>
 
 <div class="row">
+
 {% for product in products %}
-    <div class="col-md-4">
-        <div class="card mb-4 shadow-sm">
-            <img src="{{ product.image_url }}" class="card-img-top">
+  <div class="col-md-4 mb-4">
+    <div class="card shadow-sm">
 
-            <div class="card-body">
-                <h5>{{ product.name }}</h5>
-                <p>₹{{ product.price }}</p>
+      <img src="{{ product.image_url }}" class="card-img-top" style="height:200px; object-fit:cover;">
 
-                <a href="{% url 'product_detail' product.id %}" class="btn btn-outline-primary btn-sm">
-                    View
-                </a>
+      <div class="card-body text-center">
+        <h5 class="card-title">{{ product.name }}</h5>
+        <p class="text-success fw-bold">₹{{ product.price }}</p>
 
-                <form method="POST" action="{% url 'add_to_cart' product.id %}" class="d-inline">
-                    {% csrf_token %}
-                    <button class="btn btn-success btn-sm">Add</button>
-                </form>
-            </div>
-        </div>
+        <a href="{% url 'product_detail' product.id %}" class="btn btn-outline-primary btn-sm">
+            View
+        </a>
+
+        <form method="POST" action="{% url 'add_to_cart' product.id %}" class="d-inline">
+            {% csrf_token %}
+            <button class="btn btn-success btn-sm">Add</button>
+        </form>
+
+      </div>
     </div>
+  </div>
 {% endfor %}
+
 </div>
 
 {% endblock %}

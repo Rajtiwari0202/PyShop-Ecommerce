@@ -1,18 +1,23 @@
 {% extends 'base.html' %}
 
 {% block content %}
+
 <h2>Checkout</h2>
 
-<p>Total Amount: <strong>₹{{ total }}</strong></p>
+<div class="card p-4 shadow">
 
-<form method="POST">
-    {% csrf_token %}
+    <h4>Total: ₹{{ total }}</h4>
 
-    <input class="form-control mb-2" placeholder="Card Number">
-    <input class="form-control mb-2" placeholder="Expiry">
-    <input class="form-control mb-2" placeholder="CVV">
+    <form method="POST">
+        {% csrf_token %}
 
-    <button class="btn btn-primary">Pay Now</button>
-</form>
+        <input class="form-control mb-2" placeholder="Card Number">
+        <input class="form-control mb-2" placeholder="CVV">
+        <input class="form-control mb-2" placeholder="Expiry Date">
+
+        <button class="btn btn-success w-100">Pay Now</button>
+    </form>
+
+</div>
 
 {% endblock %}

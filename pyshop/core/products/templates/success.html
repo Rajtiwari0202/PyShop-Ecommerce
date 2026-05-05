@@ -1,7 +1,12 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h2>✅ Payment Successful</h2>
-<p>You paid ₹{{ total }}</p>
-<a href="/" class="btn btn-success">Continue Shopping</a>
+
+<div class="text-center mt-5">
+    <h1 class="text-success">🎉 Payment Successful!</h1>
+    <h3>Total Paid: ₹{{ total }}</h3>
+
+    <a href="/" class="btn btn-primary mt-3">Continue Shopping</a>
+</div>
+
 {% endblock %}
