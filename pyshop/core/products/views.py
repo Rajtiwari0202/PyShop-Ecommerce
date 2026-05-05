@@ -3,7 +3,8 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-
+import razorpay
+from django.conf import settings
 from .models import Product, Cart, CartItem, Order, OrderItem,Wishlist
 # (Add Wishlist later when we implement it)
 
@@ -142,38 +143,26 @@ def decrease_quantity(request, id):
 
 @login_required
 def checkout(request):
-    cart, _ = Cart.objects.get_or_create(user=request.user)
+    cart = Cart.objects.get(user=request.user)
 
     if cart.items.count() == 0:
         return redirect('cart')
 
-    total = cart.total_price()
+    total = int(cart.total_price() * 100)  # Razorpay works in paise
 
-    if request.method == "POST":
-        payment_method = request.POST.get('payment', 'cod')
+    client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
 
-        order = Order.objects.create(
-            user=request.user,
-            total_amount=total,
-            status=f"Placed ({payment_method.upper()})"
-        )
+    payment = client.order.create({
+        "amount": total,
+        "currency": "INR",
+        "payment_capture": "1"
+    })
 
-        for item in cart.items.all():
-            OrderItem.objects.create(
-                order=order,
-                product=item.product,
-                quantity=item.quantity,
-                price=item.product.price
-            )
-
-        cart.items.all().delete()
-
-        return render(request, 'success.html', {
-            'total': total,
-            'payment_method': payment_method
-        })
-
-    return render(request, 'checkout.html', {'total': total})
+    return render(request, "payment.html", {
+        "payment": payment,
+        "total": total // 100,
+        "razorpay_key": settings.RAZORPAY_KEY_ID
+    })
 
 
 # ================= ORDERS =================
@@ -206,3 +195,26 @@ def wishlist_view(request):
     return render(request, 'products/wishlist.html', {
         'items': items
     })
+
+@login_required
+def payment_success(request):
+    cart = Cart.objects.get(user=request.user)
+    total = cart.total_price()
+
+    order = Order.objects.create(
+        user=request.user,
+        total_amount=total,
+        status="Paid (Razorpay)"
+    )
+
+    for item in cart.items.all():
+        OrderItem.objects.create(
+            order=order,
+            product=item.product,
+            quantity=item.quantity,
+            price=item.product.price
+        )
+
+    cart.items.all().delete()
+
+    return render(request, "success.html", {"total": total})

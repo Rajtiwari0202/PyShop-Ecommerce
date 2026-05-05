@@ -117,3 +117,5 @@ USE_TZ = True
 
 STATIC_URL = "static/"
 LOGIN_URL = '/login/'
+RAZORPAY_KEY_ID = "rzp_test_Sla3lKb4vNCgJn"
+RAZORPAY_KEY_SECRET = "MRmvpp8DBC96DO2953XD5Om7"
