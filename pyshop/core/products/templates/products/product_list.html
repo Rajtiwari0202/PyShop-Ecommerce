@@ -2,28 +2,49 @@
 
 {% block content %}
 
-<h2 class="text-center mb-4">Products</h2>
+<h2 class="text-center mb-4">🛍 Products</h2>
 
+{% if products %}
 <div class="row">
 
 {% for product in products %}
   <div class="col-md-4 mb-4">
-    <div class="card shadow-sm">
+    <div class="card shadow-sm h-100">
 
-      <img src="{{ product.image_url }}" class="card-img-top" style="height:200px; object-fit:cover;">
+      <!-- IMAGE -->
+      <img src="{{ product.image_url|default:'https://via.placeholder.com/300' }}" 
+           class="card-img-top" 
+           style="height:200px; object-fit:cover;">
 
-      <div class="card-body text-center">
+      <div class="card-body text-center d-flex flex-column">
+
         <h5 class="card-title">{{ product.name }}</h5>
-        <p class="text-success fw-bold">₹{{ product.price }}</p>
+        <p class="text-success fw-bold mb-3">₹{{ product.price }}</p>
 
-        <a href="{% url 'product_detail' product.id %}" class="btn btn-outline-primary btn-sm">
-            View
-        </a>
+        <!-- BUTTON GROUP -->
+        <div class="mt-auto d-flex justify-content-center gap-2 flex-wrap">
 
-        <form method="POST" action="{% url 'add_to_cart' product.id %}" class="d-inline">
-            {% csrf_token %}
-            <button class="btn btn-success btn-sm">Add</button>
-        </form>
+          <a href="{% url 'product_detail' product.id %}" 
+             class="btn btn-outline-primary btn-sm">
+             View
+          </a>
+
+          <form method="POST" action="{% url 'add_to_cart' product.id %}">
+              {% csrf_token %}
+              <button class="btn btn-success btn-sm">
+                  🛒 Add
+              </button>
+          </form>
+
+          <!-- FIXED: Wishlist as POST -->
+          <form method="POST" action="{% url 'add_to_wishlist' product.id %}">
+              {% csrf_token %}
+              <button class="btn btn-outline-danger btn-sm">
+                  ❤️ Wishlist
+              </button>
+          </form>
+
+        </div>
 
       </div>
     </div>
@@ -31,5 +52,12 @@
 {% endfor %}
 
 </div>
+
+{% else %}
+<div class="text-center mt-5">
+    <h4>No products found 😕</h4>
+    <p>Try searching something else.</p>
+</div>
+{% endif %}
 
 {% endblock %}

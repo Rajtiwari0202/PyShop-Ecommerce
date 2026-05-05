@@ -3,8 +3,9 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from .models import Order
-from .models import Product, Cart, CartItem, Order, OrderItem
+
+from .models import Product, Cart, CartItem, Order, OrderItem,Wishlist
+# (Add Wishlist later when we implement it)
 
 
 # ================= AUTH =================
@@ -58,6 +59,7 @@ def product_list(request):
 
     return render(request, 'products/product_list.html', {'products': products})
 
+
 def product_detail(request, id):
     product = get_object_or_404(Product, id=id)
     return render(request, 'products/product_detail.html', {'product': product})
@@ -67,7 +69,7 @@ def product_detail(request, id):
 
 @login_required
 def cart_view(request):
-    cart, created = Cart.objects.get_or_create(user=request.user)
+    cart, _ = Cart.objects.get_or_create(user=request.user)
 
     cart_items = cart.items.all()
     total_price = cart.total_price()
@@ -81,8 +83,7 @@ def cart_view(request):
 @login_required
 def add_to_cart(request, id):
     product = get_object_or_404(Product, id=id)
-
-    cart, created = Cart.objects.get_or_create(user=request.user)
+    cart, _ = Cart.objects.get_or_create(user=request.user)
 
     cart_item, created = CartItem.objects.get_or_create(
         cart=cart,
@@ -98,39 +99,41 @@ def add_to_cart(request, id):
 
 @login_required
 def remove_from_cart(request, id):
-    cart = Cart.objects.get(user=request.user)
+    cart, _ = Cart.objects.get_or_create(user=request.user)
     product = get_object_or_404(Product, id=id)
 
     CartItem.objects.filter(cart=cart, product=product).delete()
-
     return redirect('cart')
 
 
 @login_required
 def increase_quantity(request, id):
-    cart = Cart.objects.get(user=request.user)
+    cart, _ = Cart.objects.get_or_create(user=request.user)
     product = get_object_or_404(Product, id=id)
 
-    item = CartItem.objects.get(cart=cart, product=product)
-    item.quantity += 1
-    item.save()
+    item = CartItem.objects.filter(cart=cart, product=product).first()
+
+    if item:
+        item.quantity += 1
+        item.save()
 
     return redirect('cart')
 
 
 @login_required
 def decrease_quantity(request, id):
-    cart = Cart.objects.get(user=request.user)
+    cart, _ = Cart.objects.get_or_create(user=request.user)
     product = get_object_or_404(Product, id=id)
 
-    item = CartItem.objects.get(cart=cart, product=product)
+    item = CartItem.objects.filter(cart=cart, product=product).first()
 
-    item.quantity -= 1
+    if item:
+        item.quantity -= 1
 
-    if item.quantity <= 0:
-        item.delete()
-    else:
-        item.save()
+        if item.quantity <= 0:
+            item.delete()
+        else:
+            item.save()
 
     return redirect('cart')
 
@@ -139,7 +142,7 @@ def decrease_quantity(request, id):
 
 @login_required
 def checkout(request):
-    cart = Cart.objects.get(user=request.user)
+    cart, _ = Cart.objects.get_or_create(user=request.user)
 
     if cart.items.count() == 0:
         return redirect('cart')
@@ -147,7 +150,7 @@ def checkout(request):
     total = cart.total_price()
 
     if request.method == "POST":
-        payment_method = request.POST.get('payment')
+        payment_method = request.POST.get('payment', 'cod')
 
         order = Order.objects.create(
             user=request.user,
@@ -171,17 +174,9 @@ def checkout(request):
         })
 
     return render(request, 'checkout.html', {'total': total})
-@login_required
-def orders(request):
-    user_orders = Order.objects.filter(user=request.user).order_by('-created_at')
-    return render(request, 'orders.html', {'orders': user_orders})
 
-@login_required
-def add_to_wishlist(request, id):
-    product = Product.objects.get(id=id)
-    Wishlist.objects.get_or_create(user=request.user, product=product)
-    return redirect('product_list')
 
+# ================= ORDERS =================
 
 @login_required
 def order_history(request):
@@ -189,4 +184,25 @@ def order_history(request):
 
     return render(request, 'products/order_history.html', {
         'orders': orders
+    })
+
+@login_required
+def add_to_wishlist(request, id):
+    if request.method == "POST":
+        product = get_object_or_404(Product, id=id)
+        Wishlist.objects.get_or_create(user=request.user, product=product)
+
+    return redirect('product_list')
+@login_required
+def remove_from_wishlist(request, id):
+    product = get_object_or_404(Product, id=id)
+    Wishlist.objects.filter(user=request.user, product=product).delete()
+    return redirect('wishlist')
+
+@login_required
+def wishlist_view(request):
+    items = Wishlist.objects.filter(user=request.user)
+
+    return render(request, 'products/wishlist.html', {
+        'items': items
     })
