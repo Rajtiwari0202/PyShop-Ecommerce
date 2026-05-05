@@ -3,7 +3,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-
+from .models import Order
 from .models import Product, Cart, CartItem, Order, OrderItem
 
 
@@ -49,9 +49,14 @@ def logout_view(request):
 # ================= PRODUCTS =================
 
 def product_list(request):
-    products = Product.objects.all()
-    return render(request, 'products/product_list.html', {'products': products})
+    query = request.GET.get('q')
 
+    if query:
+        products = Product.objects.filter(name__icontains=query)
+    else:
+        products = Product.objects.all()
+
+    return render(request, 'products/product_list.html', {'products': products})
 
 def product_detail(request, id):
     product = get_object_or_404(Product, id=id)
@@ -142,14 +147,14 @@ def checkout(request):
     total = cart.total_price()
 
     if request.method == "POST":
-        # Create Order
+        payment_method = request.POST.get('payment')
+
         order = Order.objects.create(
             user=request.user,
             total_amount=total,
-            status="Completed"
+            status=f"Placed ({payment_method.upper()})"
         )
 
-        # Copy items
         for item in cart.items.all():
             OrderItem.objects.create(
                 order=order,
@@ -158,9 +163,30 @@ def checkout(request):
                 price=item.product.price
             )
 
-        # Clear cart
         cart.items.all().delete()
 
-        return render(request, 'success.html', {'total': total})
+        return render(request, 'success.html', {
+            'total': total,
+            'payment_method': payment_method
+        })
 
     return render(request, 'checkout.html', {'total': total})
+@login_required
+def orders(request):
+    user_orders = Order.objects.filter(user=request.user).order_by('-created_at')
+    return render(request, 'orders.html', {'orders': user_orders})
+
+@login_required
+def add_to_wishlist(request, id):
+    product = Product.objects.get(id=id)
+    Wishlist.objects.get_or_create(user=request.user, product=product)
+    return redirect('product_list')
+
+
+@login_required
+def order_history(request):
+    orders = Order.objects.filter(user=request.user).order_by('-created_at')
+
+    return render(request, 'products/order_history.html', {
+        'orders': orders
+    })
