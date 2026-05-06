@@ -11,7 +11,8 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
 from pathlib import Path
-
+from dotenv import load_dotenv
+load_dotenv()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -120,3 +121,10 @@ STATIC_URL = "static/"
 LOGIN_URL = '/login/'
 RAZORPAY_KEY_ID = "rzp_test_Sla3lKb4vNCgJn"
 RAZORPAY_KEY_SECRET = "MRmvpp8DBC96DO2953XD5Om7"
+
+'context_processors': [
+    'django.template.context_processors.request',
+    'django.contrib.auth.context_processors.auth',
+    'django.contrib.messages.context_processors.messages',
+    'products.context_processors.global_counts',
+]

@@ -96,7 +96,17 @@
                   <button class="btn btn-success btn-sm">🛒</button>
                 </form>
 
-                <form method="POST" action="{% url 'add_to_wishlist' product.id %}">
+                {% if product.id in wishlist_items %}
+                  <form method="POST" action="{% url 'remove_from_wishlist' product.id %}">
+                    {% csrf_token %}
+                    <button class="btn btn-danger btn-sm">❤️ Added</button>
+                  </form>
+                {% else %}
+                  <form method="POST" action="{% url 'add_to_wishlist' product.id %}">
+                    {% csrf_token %}
+                    <button class="btn btn-outline-danger btn-sm">🤍</button>
+                  </form>
+                {% endif %}
                   {% csrf_token %}
                   <button class="btn btn-outline-danger btn-sm">❤️</button>
                 </form>

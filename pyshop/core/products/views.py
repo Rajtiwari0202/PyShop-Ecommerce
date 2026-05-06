@@ -59,7 +59,11 @@ def product_list(request):
 
     products = Product.objects.all()
     categories = Category.objects.all()
+    wishlist_items = []
 
+    if request.user.is_authenticated:
+        wishlist_items = Wishlist.objects.filter(user=request.user)\
+                                     .values_list('product_id', flat=True)
     # 🔍 Search
     if query:
         products = products.filter(name__icontains=query)
@@ -82,7 +86,11 @@ def product_list(request):
 
 def product_detail(request, id):
     product = get_object_or_404(Product, id=id)
-    return render(request, 'products/product_detail.html', {'product': product})
+    return render(request, 'products/product_list.html', {
+    'products': products,
+    'categories': categories,
+    'wishlist_items': wishlist_items
+})
 # ================= CART =================
 
 @login_required
@@ -112,6 +120,7 @@ def add_to_cart(request, id):
         cart_item.quantity += 1
         cart_item.save()
 
+    messages.success(request, f"{product.name} added to cart")
     return redirect('cart')
 
 
@@ -121,6 +130,7 @@ def remove_from_cart(request, id):
     product = get_object_or_404(Product, id=id)
 
     CartItem.objects.filter(cart=cart, product=product).delete()
+    messages.warning(request, f"{product.name} removed from cart")
     return redirect('cart')
 
 
@@ -137,7 +147,6 @@ def increase_quantity(request, id):
 
     return redirect('cart')
 
-
 @login_required
 def decrease_quantity(request, id):
     cart, _ = Cart.objects.get_or_create(user=request.user)
@@ -150,6 +159,7 @@ def decrease_quantity(request, id):
 
         if item.quantity <= 0:
             item.delete()
+            messages.warning(request, f"{product.name} removed from cart")
         else:
             item.save()
 
@@ -163,9 +173,10 @@ def checkout(request):
     cart = Cart.objects.get(user=request.user)
 
     if cart.items.count() == 0:
+        messages.warning(request, "Your cart is empty")
         return redirect('cart')
 
-    total = int(cart.total_price() * 100)  # Razorpay works in paise
+    total = int(cart.total_price() * 100)
 
     client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
 
@@ -175,12 +186,11 @@ def checkout(request):
         "payment_capture": "1"
     })
 
-    return render(request, "payment.html", {
+    return render(request, "products/payment.html", {
         "payment": payment,
         "total": total // 100,
         "razorpay_key": settings.RAZORPAY_KEY_ID
     })
-
 
 # ================= ORDERS =================
 
@@ -194,18 +204,18 @@ def order_history(request):
 
 @login_required
 def add_to_wishlist(request, id):
-    if request.method == "POST":
-        product = get_object_or_404(Product, id=id)
-        Wishlist.objects.get_or_create(user=request.user, product=product)
+    product = get_object_or_404(Product, id=id)
 
+    Wishlist.objects.get_or_create(user=request.user, product=product)
+
+    messages.success(request, f"{product.name} added to wishlist")
     return redirect('product_list')
+
 @login_required
 def remove_from_wishlist(request, id):
     if request.method == "POST":
-        product = get_object_or_404(Product, id=id)
-        Wishlist.objects.filter(user=request.user, product=product).delete()
-
-    return redirect('wishlist')
+        Wishlist.objects.filter(user=request.user, product_id=id).delete()
+    return redirect('product_list')
 
 @login_required
 def wishlist_view(request):
@@ -223,7 +233,7 @@ def payment_success(request):
     order = Order.objects.create(
         user=request.user,
         total_amount=total,
-        status="Paid (Razorpay)"
+        status="Paid"
     )
 
     for item in cart.items.all():
@@ -236,4 +246,6 @@ def payment_success(request):
 
     cart.items.all().delete()
 
-    return render(request, "success.html", {"total": total})
+    messages.success(request, "Payment successful! Order placed 🎉")
+
+    return render(request, "products/success.html", {"total": total})
