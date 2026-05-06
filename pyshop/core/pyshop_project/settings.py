@@ -28,6 +28,11 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+CSRF_TRUSTED_ORIGINS = [
+    "https://localhost:8000",
+    "https://127.0.0.1:8000",
+    "https://*.app.github.dev",
+]
 
 # Application definition
 
@@ -55,14 +60,14 @@ ROOT_URLCONF = 'pyshop_project.urls'
 
 TEMPLATES = [
     {
-        "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
-        "APP_DIRS": True,
-        "OPTIONS": {
-            "context_processors": [
-                "django.template.context_processors.request",
-                "django.contrib.auth.context_processors.auth",
-                "django.contrib.messages.context_processors.messages",
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
                 'products.context_processors.global_counts',
             ],
         },
@@ -121,10 +126,3 @@ STATIC_URL = "static/"
 LOGIN_URL = '/login/'
 RAZORPAY_KEY_ID = "rzp_test_Sla3lKb4vNCgJn"
 RAZORPAY_KEY_SECRET = "MRmvpp8DBC96DO2953XD5Om7"
-
-'context_processors': [
-    'django.template.context_processors.request',
-    'django.contrib.auth.context_processors.auth',
-    'django.contrib.messages.context_processors.messages',
-    'products.context_processors.global_counts',
-]

@@ -6,10 +6,58 @@ from django.contrib.auth.decorators import login_required
 import razorpay
 
 from django.conf import settings
-from .models import Product, Cart, CartItem, Order, OrderItem,Wishlist,Category
-# (Add Wishlist later when we implement it)
+from .models import Product, Cart, CartItem, Order, OrderItem, Wishlist, Category
 
+import json
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
 
+@csrf_exempt
+@login_required
+def verify_payment(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+
+        razorpay_payment_id = data.get("razorpay_payment_id")
+        razorpay_order_id = data.get("razorpay_order_id")
+        razorpay_signature = data.get("razorpay_signature")
+
+        client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
+
+        try:
+            client.utility.verify_payment_signature({
+                'razorpay_order_id': razorpay_order_id,
+                'razorpay_payment_id': razorpay_payment_id,
+                'razorpay_signature': razorpay_signature
+            })
+
+            # ✅ Signature valid → create order
+            cart = Cart.objects.get(user=request.user)
+
+            order = Order.objects.create(
+                user=request.user,
+                total_amount=cart.total_price(),
+                status="Paid",
+                razorpay_payment_id=razorpay_payment_id
+            )
+
+            for item in cart.items.all():
+                OrderItem.objects.create(
+                    order=order,
+                    product=item.product,
+                    quantity=item.quantity,
+                    price=item.product.price
+                )
+
+            cart.items.all().delete()
+
+            return JsonResponse({"status": "success"})
+
+        except razorpay.errors.SignatureVerificationError:
+            return JsonResponse({"status": "failed", "message": "Invalid signature"})
+
+        except Exception as e:
+            return JsonResponse({"status": "error", "message": str(e)})
 # ================= AUTH =================
 
 def signup_view(request):
@@ -63,7 +111,8 @@ def product_list(request):
 
     if request.user.is_authenticated:
         wishlist_items = Wishlist.objects.filter(user=request.user)\
-                                     .values_list('product_id', flat=True)
+            .values_list('product_id', flat=True)
+
     # 🔍 Search
     if query:
         products = products.filter(name__icontains=query)
@@ -81,16 +130,25 @@ def product_list(request):
 
     return render(request, 'products/product_list.html', {
         'products': products,
-        'categories': categories
+        'categories': categories,
+        'wishlist_items': wishlist_items
     })
+
 
 def product_detail(request, id):
     product = get_object_or_404(Product, id=id)
-    return render(request, 'products/product_list.html', {
-    'products': products,
-    'categories': categories,
-    'wishlist_items': wishlist_items
-})
+
+    # OPTIONAL: show related products (good UX)
+    related_products = Product.objects.filter(
+        category=product.category
+    ).exclude(id=product.id)[:4]
+
+    return render(request, 'products/product_detail.html', {
+        'product': product,
+        'related_products': related_products
+    })
+
+
 # ================= CART =================
 
 @login_required
@@ -147,6 +205,7 @@ def increase_quantity(request, id):
 
     return redirect('cart')
 
+
 @login_required
 def decrease_quantity(request, id):
     cart, _ = Cart.objects.get_or_create(user=request.user)
@@ -178,7 +237,9 @@ def checkout(request):
 
     total = int(cart.total_price() * 100)
 
-    client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
+    client = razorpay.Client(
+        auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET)
+    )
 
     payment = client.order.create({
         "amount": total,
@@ -192,6 +253,7 @@ def checkout(request):
         "razorpay_key": settings.RAZORPAY_KEY_ID
     })
 
+
 # ================= ORDERS =================
 
 @login_required
@@ -202,6 +264,9 @@ def order_history(request):
         'orders': orders
     })
 
+
+# ================= WISHLIST =================
+
 @login_required
 def add_to_wishlist(request, id):
     product = get_object_or_404(Product, id=id)
@@ -211,11 +276,16 @@ def add_to_wishlist(request, id):
     messages.success(request, f"{product.name} added to wishlist")
     return redirect('product_list')
 
+
 @login_required
 def remove_from_wishlist(request, id):
-    if request.method == "POST":
-        Wishlist.objects.filter(user=request.user, product_id=id).delete()
-    return redirect('product_list')
+    product = get_object_or_404(Product, id=id)
+
+    Wishlist.objects.filter(user=request.user, product=product).delete()
+
+    messages.warning(request, f"{product.name} removed from wishlist")
+    return redirect('product_list')  # ✅ FIXED
+
 
 @login_required
 def wishlist_view(request):
@@ -225,27 +295,9 @@ def wishlist_view(request):
         'items': items
     })
 
+
+# ================= PAYMENT SUCCESS =================
+
 @login_required
 def payment_success(request):
-    cart = Cart.objects.get(user=request.user)
-    total = cart.total_price()
-
-    order = Order.objects.create(
-        user=request.user,
-        total_amount=total,
-        status="Paid"
-    )
-
-    for item in cart.items.all():
-        OrderItem.objects.create(
-            order=order,
-            product=item.product,
-            quantity=item.quantity,
-            price=item.product.price
-        )
-
-    cart.items.all().delete()
-
-    messages.success(request, "Payment successful! Order placed 🎉")
-
-    return render(request, "products/success.html", {"total": total})
+    return render(request, "products/success.html")
