@@ -2,55 +2,108 @@
 
 {% block content %}
 
-<h2 class="mb-4">Your Cart</h2>
+<h2 class="mb-4 fw-bold">🛒 Your Cart</h2>
 
 {% if cart_items %}
 
-<table class="table table-bordered shadow-sm">
-    <thead class="table-dark">
-        <tr>
-            <th>Product</th>
-            <th>Price</th>
-            <th>Qty</th>
-            <th>Subtotal</th>
-            <th>Action</th>
-        </tr>
-    </thead>
+<div class="row">
 
-    <tbody>
+  <!-- 🛍 CART ITEMS -->
+  <div class="col-lg-8">
+
     {% for item in cart_items %}
-        <tr>
-            <td>{{ item.product.name }}</td>
-            <td>₹{{ item.product.price }}</td>
+    <div class="card mb-3 shadow-sm border-0">
+      <div class="row g-0 align-items-center">
 
-            <td>
-                <a href="{% url 'decrease_quantity' item.product.id %}" class="btn btn-danger btn-sm">-</a>
-                {{ item.quantity }}
-                <a href="{% url 'increase_quantity' item.product.id %}" class="btn btn-success btn-sm">+</a>
-            </td>
+        <!-- IMAGE -->
+        <div class="col-md-3 text-center p-2">
+          <img src="{{ item.product.image_url|default:'https://via.placeholder.com/150' }}"
+               class="img-fluid rounded"
+               style="max-height:120px; object-fit:cover;">
+        </div>
 
-            <td>₹{{ item.total_price }}</td>
+        <!-- DETAILS -->
+        <div class="col-md-5">
+          <div class="card-body">
+            <h5 class="mb-1">{{ item.product.name }}</h5>
+            <p class="text-success fw-bold mb-1">₹{{ item.product.price }}</p>
+            <small class="text-muted">Subtotal: ₹{{ item.total_price }}</small>
+          </div>
+        </div>
 
-            <td>
-                <a href="{% url 'remove_from_cart' item.product.id %}" class="btn btn-warning btn-sm">
-                    Remove
-                </a>
-            </td>
-        </tr>
+        <!-- QUANTITY -->
+        <div class="col-md-2 text-center">
+          <div class="d-flex justify-content-center align-items-center gap-2">
+
+            <a href="{% url 'decrease_quantity' item.product.id %}" 
+               class="btn btn-outline-danger btn-sm">-</a>
+
+            <span class="fw-bold">{{ item.quantity }}</span>
+
+            <a href="{% url 'increase_quantity' item.product.id %}" 
+               class="btn btn-outline-success btn-sm">+</a>
+
+          </div>
+        </div>
+
+        <!-- REMOVE -->
+        <div class="col-md-2 text-center">
+          <a href="{% url 'remove_from_cart' item.product.id %}" 
+             class="btn btn-outline-warning btn-sm">
+            Remove
+          </a>
+        </div>
+
+      </div>
+    </div>
     {% endfor %}
-    </tbody>
-</table>
 
-<h4 class="text-end">Total: ₹{{ total_price }}</h4>
+  </div>
 
-<div class="d-flex justify-content-between">
-    <a href="/" class="btn btn-outline-secondary">⬅ Continue Shopping</a>
-    <a href="{% url 'checkout' %}" class="btn btn-primary btn-lg">Proceed to Checkout</a>
+  <!-- 💰 SUMMARY -->
+  <div class="col-lg-4">
+    <div class="card shadow-sm p-3">
+
+      <h5 class="fw-bold mb-3">Order Summary</h5>
+
+      <div class="d-flex justify-content-between">
+        <span>Items Total</span>
+        <span>₹{{ total_price }}</span>
+      </div>
+
+      <div class="d-flex justify-content-between text-muted">
+        <span>Delivery</span>
+        <span>Free</span>
+      </div>
+
+      <hr>
+
+      <div class="d-flex justify-content-between fw-bold fs-5">
+        <span>Total</span>
+        <span>₹{{ total_price }}</span>
+      </div>
+
+      <a href="{% url 'checkout' %}" 
+         class="btn btn-primary w-100 mt-3">
+        Proceed to Checkout
+      </a>
+
+      <a href="/" class="btn btn-outline-secondary w-100 mt-2">
+        ⬅ Continue Shopping
+      </a>
+
+    </div>
+  </div>
+
 </div>
 
 {% else %}
-    <p>Your cart is empty 😢</p>
-    <a href="/" class="btn btn-primary">Shop Now</a>
+
+<div class="text-center mt-5">
+    <h4>Your cart is empty 😢</h4>
+    <a href="/" class="btn btn-primary mt-3">Shop Now</a>
+</div>
+
 {% endif %}
 
 {% endblock %}

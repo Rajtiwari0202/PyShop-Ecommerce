@@ -1,16 +1,22 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+class Category(models.Model):
+    name = models.CharField(max_length=100)
 
+    def __str__(self):
+        return self.name
+    
 class Product(models.Model):
     name = models.CharField(max_length=200)
     price = models.FloatField()
     description = models.TextField()
     image_url = models.URLField(blank=True)
 
+    category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True)
+
     def __str__(self):
         return self.name
-
 
 # 🛒 CART
 class Cart(models.Model):
@@ -54,3 +60,4 @@ class Wishlist(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.product.name}"
+    

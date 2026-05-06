@@ -13,27 +13,42 @@
 
     <style>
         body {
-            background-color: #f8f9fa;
+            background-color: #f5f6fa;
         }
 
         .card:hover {
-            transform: scale(1.03);
+            transform: translateY(-5px);
             transition: 0.3s;
         }
 
         .navbar-brand {
             font-weight: bold;
             letter-spacing: 1px;
+            font-size: 1.3rem;
         }
 
         .search-box {
-            width: 300px;
+            width: 350px;
+        }
+
+        .badge-notify {
+            position: absolute;
+            top: 0;
+            right: -8px;
+            font-size: 10px;
+            padding: 4px 6px;
+            border-radius: 50%;
+        }
+
+        footer {
+            font-size: 14px;
+            opacity: 0.9;
         }
 
         @media (max-width: 768px) {
             .search-box {
                 width: 100%;
-                margin-top: 10px;
+                margin: 10px 0;
             }
         }
     </style>
@@ -42,22 +57,29 @@
 <body>
 
 <!-- 🔥 NAVBAR -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top shadow">
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top shadow-sm">
   <div class="container">
 
     <a class="navbar-brand" href="/">🛍 PyShop</a>
 
-    <!-- MOBILE TOGGLER -->
+    <!-- MOBILE -->
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
         <span class="navbar-toggler-icon"></span>
     </button>
 
     <div class="collapse navbar-collapse" id="navbarContent">
 
-      <!-- SEARCH -->
+      <!-- 🔍 SEARCH -->
       <form class="d-flex mx-auto search-box" method="GET" action="/">
-        <input class="form-control me-2" name="q" placeholder="Search products...">
-        <button class="btn btn-outline-light">Search</button>
+        <input 
+            class="form-control me-2" 
+            name="q" 
+            value="{{ request.GET.q }}" 
+            placeholder="Search products..."
+        >
+        <button class="btn btn-outline-light">
+            <i class="bi bi-search"></i>
+        </button>
       </form>
 
       <!-- RIGHT SIDE -->
@@ -65,35 +87,49 @@
 
         {% if user.is_authenticated %}
 
-          <!-- CART -->
-          <li class="nav-item me-2">
+          <!-- 🛒 CART -->
+          <li class="nav-item me-3">
             <a class="nav-link position-relative" href="{% url 'cart' %}">
-              🛒 Cart
+              <i class="bi bi-cart3 fs-5"></i>
+
+              {% if cart_count %}
+                <span class="badge bg-danger badge-notify">
+                  {{ cart_count }}
+                </span>
+              {% endif %}
             </a>
           </li>
 
-          <!-- ORDERS -->
-          <li class="nav-item">
+          <!-- ❤️ WISHLIST -->
+          <li class="nav-item me-3">
+            <a class="nav-link position-relative" href="{% url 'wishlist' %}">
+              <i class="bi bi-heart fs-5"></i>
+
+              {% if wishlist_count %}
+                <span class="badge bg-danger badge-notify">
+                  {{ wishlist_count }}
+                </span>
+              {% endif %}
+            </a>
+          </li>
+
+          <!-- 📦 ORDERS -->
+          <li class="nav-item me-3">
             <a class="nav-link" href="{% url 'order_history' %}">
-              📦 Orders
+              <i class="bi bi-box-seam"></i> Orders
             </a>
           </li>
 
-          <!-- WISHLIST -->
-          <li class="nav-item">
-            <a class="nav-link" href="{% url 'wishlist' %}">
-            ❤️ Wishlist
-            </a>
+          <!-- 👤 USER -->
+          <li class="nav-item me-2">
+            <span class="nav-link text-light">
+              👋 {{ user.username }}
+            </span>
           </li>
 
-          <!-- USER -->
+          <!-- 🚪 LOGOUT -->
           <li class="nav-item">
-            <span class="nav-link text-light">Hi, {{ user.username }}</span>
-          </li>
-
-          <!-- LOGOUT -->
-          <li class="nav-item">
-            <a class="btn btn-danger ms-2" href="{% url 'logout' %}">
+            <a class="btn btn-danger btn-sm" href="{% url 'logout' %}">
               Logout
             </a>
           </li>
@@ -101,13 +137,13 @@
         {% else %}
 
           <li class="nav-item">
-            <a class="btn btn-success me-2" href="{% url 'login' %}">
+            <a class="btn btn-success me-2 btn-sm" href="{% url 'login' %}">
               Login
             </a>
           </li>
 
           <li class="nav-item">
-            <a class="btn btn-primary" href="{% url 'signup' %}">
+            <a class="btn btn-primary btn-sm" href="{% url 'signup' %}">
               Signup
             </a>
           </li>
@@ -119,14 +155,26 @@
   </div>
 </nav>
 
+<!-- 🔔 MESSAGES -->
+<div class="container mt-3">
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+    {% endfor %}
+  {% endif %}
+</div>
+
 <!-- 🔥 CONTENT -->
-<div class="container mt-4">
+<div class="container mt-3">
     {% block content %}{% endblock %}
 </div>
 
 <!-- FOOTER -->
 <footer class="bg-dark text-light text-center p-3 mt-5">
-    <p class="mb-0">© 2026 PyShop | Built with Django 🚀</p>
+    <p class="mb-0">© 2026 PyShop • Built with Django 🚀</p>
 </footer>
 
 <!-- Bootstrap JS -->

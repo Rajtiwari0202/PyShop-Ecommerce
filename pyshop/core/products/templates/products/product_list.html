@@ -2,62 +2,125 @@
 
 {% block content %}
 
-<h2 class="text-center mb-4">🛍 Products</h2>
-
-{% if products %}
 <div class="row">
 
-{% for product in products %}
-  <div class="col-md-4 mb-4">
-    <div class="card shadow-sm h-100">
+  <!-- 🔥 SIDEBAR -->
+  <div class="col-md-3 mb-4">
+    <div class="card p-3 shadow-sm sticky-top" style="top: 20px;">
 
-      <!-- IMAGE -->
-      <img src="{{ product.image_url|default:'https://via.placeholder.com/300' }}" 
-           class="card-img-top" 
-           style="height:200px; object-fit:cover;">
+      <h5 class="mb-3">🔍 Filters</h5>
 
-      <div class="card-body text-center d-flex flex-column">
+      <form method="GET">
 
-        <h5 class="card-title">{{ product.name }}</h5>
-        <p class="text-success fw-bold mb-3">₹{{ product.price }}</p>
+        <!-- SEARCH -->
+        <input 
+          type="text" 
+          name="q" 
+          value="{{ request.GET.q }}" 
+          class="form-control mb-3" 
+          placeholder="Search products..."
+        >
 
-        <!-- BUTTON GROUP -->
-        <div class="mt-auto d-flex justify-content-center gap-2 flex-wrap">
+        <!-- CATEGORY -->
+        <label class="fw-bold">Category</label>
+        <select name="category" class="form-control mb-3">
+          <option value="">All</option>
+          {% for cat in categories %}
+            <option value="{{ cat.id }}" 
+              {% if request.GET.category == cat.id|stringformat:"s" %}selected{% endif %}>
+              {{ cat.name }}
+            </option>
+          {% endfor %}
+        </select>
 
-          <a href="{% url 'product_detail' product.id %}" 
-             class="btn btn-outline-primary btn-sm">
-             View
-          </a>
+        <!-- PRICE -->
+        <label class="fw-bold">Min Price</label>
+        <input 
+          type="number" 
+          name="min_price" 
+          value="{{ request.GET.min_price }}" 
+          class="form-control mb-2"
+        >
 
-          <form method="POST" action="{% url 'add_to_cart' product.id %}">
-              {% csrf_token %}
-              <button class="btn btn-success btn-sm">
-                  🛒 Add
-              </button>
-          </form>
+        <label class="fw-bold">Max Price</label>
+        <input 
+          type="number" 
+          name="max_price" 
+          value="{{ request.GET.max_price }}" 
+          class="form-control mb-3"
+        >
 
-          <!-- FIXED: Wishlist as POST -->
-          <form method="POST" action="{% url 'add_to_wishlist' product.id %}">
-              {% csrf_token %}
-              <button class="btn btn-outline-danger btn-sm">
-                  ❤️ Wishlist
-              </button>
-          </form>
+        <button class="btn btn-primary w-100 mb-2">Apply Filters</button>
 
-        </div>
+        <a href="/" class="btn btn-outline-secondary w-100">Reset</a>
 
-      </div>
+      </form>
+
     </div>
   </div>
-{% endfor %}
+
+  <!-- 🛍 PRODUCTS -->
+  <div class="col-md-9">
+
+    <div class="row">
+
+      {% if products %}
+        {% for product in products %}
+        <div class="col-lg-4 col-md-6 mb-4">
+          <div class="card shadow-sm h-100 border-0">
+
+            <img src="{{ product.image_url|default:'https://via.placeholder.com/300' }}"
+                 class="card-img-top"
+                 style="height:200px; object-fit:cover;">
+
+            <div class="card-body text-center d-flex flex-column">
+
+              <h5 class="fw-bold">{{ product.name }}</h5>
+
+              <!-- SAFE CATEGORY -->
+              <p class="text-muted small">
+                {{ product.category.name|default:"Uncategorized" }}
+              </p>
+
+              <p class="text-success fw-bold fs-5">₹{{ product.price }}</p>
+
+              <div class="mt-auto d-flex justify-content-center gap-2 flex-wrap">
+
+                <a href="{% url 'product_detail' product.id %}" 
+                   class="btn btn-outline-primary btn-sm">
+                  View
+                </a>
+
+                <form method="POST" action="{% url 'add_to_cart' product.id %}">
+                  {% csrf_token %}
+                  <button class="btn btn-success btn-sm">🛒</button>
+                </form>
+
+                <form method="POST" action="{% url 'add_to_wishlist' product.id %}">
+                  {% csrf_token %}
+                  <button class="btn btn-outline-danger btn-sm">❤️</button>
+                </form>
+
+              </div>
+
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+
+      {% else %}
+        <!-- EMPTY STATE -->
+        <div class="text-center mt-5">
+          <h4>No products found 😔</h4>
+          <p class="text-muted">Try adjusting your filters</p>
+          <a href="/" class="btn btn-primary">Browse All</a>
+        </div>
+      {% endif %}
+
+    </div>
+
+  </div>
 
 </div>
-
-{% else %}
-<div class="text-center mt-5">
-    <h4>No products found 😕</h4>
-    <p>Try searching something else.</p>
-</div>
-{% endif %}
 
 {% endblock %}

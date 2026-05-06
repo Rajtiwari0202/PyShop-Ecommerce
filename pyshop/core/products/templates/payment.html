@@ -1,11 +1,14 @@
 {% extends 'base.html' %}
+
 {% block content %}
 
-<div class="container text-center mt-5">
-    <h2>Complete Payment</h2>
-    <h4>Total: ₹{{ total }}</h4>
+<div class="text-center mt-5">
+    <h2 class="fw-bold">💳 Secure Payment</h2>
+    <h4 class="text-success">₹{{ total }}</h4>
 
-    <button id="rzp-button" class="btn btn-success mt-3">Pay Now</button>
+    <button id="rzp-button" class="btn btn-success btn-lg mt-3 px-5">
+        Pay Now
+    </button>
 </div>
 
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
@@ -24,7 +27,7 @@ var options = {
     },
 
     "theme": {
-        "color": "#0d6efd"
+        "color": "#198754"
     }
 };
 

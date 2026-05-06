@@ -4,8 +4,9 @@ from django.contrib.auth.models import User
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 import razorpay
+
 from django.conf import settings
-from .models import Product, Cart, CartItem, Order, OrderItem,Wishlist
+from .models import Product, Cart, CartItem, Order, OrderItem,Wishlist,Category
 # (Add Wishlist later when we implement it)
 
 
@@ -52,20 +53,36 @@ def logout_view(request):
 
 def product_list(request):
     query = request.GET.get('q')
+    category_id = request.GET.get('category')
+    min_price = request.GET.get('min_price')
+    max_price = request.GET.get('max_price')
 
+    products = Product.objects.all()
+    categories = Category.objects.all()
+
+    # 🔍 Search
     if query:
-        products = Product.objects.filter(name__icontains=query)
-    else:
-        products = Product.objects.all()
+        products = products.filter(name__icontains=query)
 
-    return render(request, 'products/product_list.html', {'products': products})
+    # 📂 Category filter
+    if category_id:
+        products = products.filter(category_id=category_id)
 
+    # 💰 Price filter
+    if min_price:
+        products = products.filter(price__gte=min_price)
+
+    if max_price:
+        products = products.filter(price__lte=max_price)
+
+    return render(request, 'products/product_list.html', {
+        'products': products,
+        'categories': categories
+    })
 
 def product_detail(request, id):
     product = get_object_or_404(Product, id=id)
     return render(request, 'products/product_detail.html', {'product': product})
-
-
 # ================= CART =================
 
 @login_required
@@ -184,8 +201,10 @@ def add_to_wishlist(request, id):
     return redirect('product_list')
 @login_required
 def remove_from_wishlist(request, id):
-    product = get_object_or_404(Product, id=id)
-    Wishlist.objects.filter(user=request.user, product=product).delete()
+    if request.method == "POST":
+        product = get_object_or_404(Product, id=id)
+        Wishlist.objects.filter(user=request.user, product=product).delete()
+
     return redirect('wishlist')
 
 @login_required
