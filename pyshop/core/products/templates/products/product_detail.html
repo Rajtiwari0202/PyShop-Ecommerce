@@ -52,7 +52,94 @@
       </form>
 
     </div>
+            <hr class="my-5">
 
+            <h3>Customer Reviews</h3>
+
+            <h5 class="mb-3">
+                Average Rating: ⭐ {{ average_rating }}/5
+            </h5>
+
+            {% if user.is_authenticated %}
+
+            <form method="POST"
+                  action="{% url 'add_review' product.id %}"
+                  class="mb-5">
+
+                {% csrf_token %}
+
+                <div class="mb-3">
+                    <label class="form-label">Rating</label>
+
+                    <select name="rating" class="form-select" required>
+                        <option value="">Choose Rating</option>
+                        <option value="5">⭐⭐⭐⭐⭐</option>
+                        <option value="4">⭐⭐⭐⭐</option>
+                        <option value="3">⭐⭐⭐</option>
+                        <option value="2">⭐⭐</option>
+                        <option value="1">⭐</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Comment</label>
+
+                    <textarea name="comment"
+                              class="form-control"
+                              rows="4"
+                              required></textarea>
+                </div>
+
+                <button class="btn btn-dark">
+                    Submit Review
+                </button>
+
+            </form>
+
+            {% else %}
+
+            <p>
+                <a href="{% url 'login' %}">
+                    Login
+                </a>
+                to write a review.
+            </p>
+
+            {% endif %}
+
+          {% for review in reviews %}
+
+<div class="card mb-3 shadow-sm border-0">
+
+    <div class="card-body">
+
+        <h5>
+            {{ review.user.username }}
+        </h5>
+
+        <p class="text-warning">
+            {% for i in "12345" %}
+                {% if forloop.counter <= review.rating %}
+                    ⭐
+                {% endif %}
+            {% endfor %}
+        </p>
+
+        <p>{{ review.comment }}</p>
+
+        <small class="text-muted">
+            {{ review.created_at|date:"M d, Y" }}
+        </small>
+
+    </div>
+
+</div>
+
+{% empty %}
+
+<p>No reviews yet.</p>
+
+{% endfor %}
     <!-- EXTRA INFO -->
     <div class="mt-4 text-muted">
       <p>✔ Free Delivery</p>

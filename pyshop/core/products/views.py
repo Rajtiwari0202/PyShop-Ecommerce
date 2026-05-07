@@ -7,8 +7,16 @@ import razorpay
 from django.http import HttpResponse
 from reportlab.pdfgen import canvas
 from django.conf import settings
-from .models import Product, Cart, CartItem, Order, OrderItem, Wishlist, Category
-
+from .models import (
+    Product,
+    Cart,
+    CartItem,
+    Order,
+    OrderItem,
+    Wishlist,
+    Category,
+    Review
+)
 import json
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -137,19 +145,29 @@ def product_list(request):
 
 
 def product_detail(request, id):
+
     product = get_object_or_404(Product, id=id)
 
-    # OPTIONAL: show related products (good UX)
     related_products = Product.objects.filter(
         category=product.category
     ).exclude(id=product.id)[:4]
 
+    reviews = product.reviews.all().order_by('-created_at')
+
+    average_rating = 0
+
+    if reviews.exists():
+        average_rating = round(
+            sum([review.rating for review in reviews]) / reviews.count(),
+            1
+        )
+
     return render(request, 'products/product_detail.html', {
         'product': product,
-        'related_products': related_products
+        'related_products': related_products,
+        'reviews': reviews,
+        'average_rating': average_rating
     })
-
-
 # ================= CART =================
 
 @login_required
@@ -358,3 +376,26 @@ def download_invoice(request, order_id):
     p.save()
 
     return response
+
+@login_required
+def add_review(request, product_id):
+
+    product = get_object_or_404(Product, id=product_id)
+
+    if request.method == "POST":
+
+        rating = request.POST.get("rating")
+        comment = request.POST.get("comment")
+
+        Review.objects.update_or_create(
+            product=product,
+            user=request.user,
+            defaults={
+                "rating": rating,
+                "comment": comment
+            }
+        )
+
+        messages.success(request, "Review submitted successfully!")
+
+    return redirect('product_detail', id=product.id)
