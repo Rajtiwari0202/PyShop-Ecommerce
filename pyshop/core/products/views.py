@@ -37,7 +37,7 @@ def verify_payment(request):
             order = Order.objects.create(
                 user=request.user,
                 total_amount=cart.total_price(),
-                status="Paid",
+                status="Confirmed",
                 razorpay_payment_id=razorpay_payment_id
             )
 
@@ -301,3 +301,11 @@ def wishlist_view(request):
 @login_required
 def payment_success(request):
     return render(request, "products/success.html")
+
+@login_required
+def track_order(request, order_id):
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+
+    return render(request, 'products/track_order.html', {
+        'order': order
+    })

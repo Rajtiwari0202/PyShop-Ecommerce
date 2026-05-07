@@ -19,5 +19,12 @@ class ProductAdmin(admin.ModelAdmin):
 # (keep others simple for now)
 admin.site.register(Cart)
 admin.site.register(CartItem)
-admin.site.register(Order)
 admin.site.register(OrderItem)
+
+from .models import Order
+
+@admin.register(Order)
+class OrderAdmin(admin.ModelAdmin):
+    list_display = ('id', 'user', 'total_amount', 'status', 'created_at')
+    list_filter = ('status', 'created_at')
+    search_fields = ('user__username',)

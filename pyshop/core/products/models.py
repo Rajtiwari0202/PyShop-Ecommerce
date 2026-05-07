@@ -38,11 +38,35 @@ class CartItem(models.Model):
 
 # 📦 ORDER SYSTEM
 class Order(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    total_amount = models.FloatField()
-    created_at = models.DateTimeField(auto_now_add=True)
-    status = models.CharField(max_length=50, default="Pending")
 
+    STATUS_CHOICES = (
+        ('Pending', 'Pending'),
+        ('Confirmed', 'Confirmed'),
+        ('Shipped', 'Shipped'),
+        ('Out for Delivery', 'Out for Delivery'),
+        ('Delivered', 'Delivered'),
+        ('Cancelled', 'Cancelled'),
+    )
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    total_amount = models.DecimalField(max_digits=10, decimal_places=2)
+
+    status = models.CharField(
+        max_length=30,
+        choices=STATUS_CHOICES,
+        default='Pending'
+    )
+
+    razorpay_payment_id = models.CharField(
+        max_length=200,
+        blank=True,
+        null=True
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Order #{self.id} - {self.user.username}"
 
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, related_name='items', on_delete=models.CASCADE)

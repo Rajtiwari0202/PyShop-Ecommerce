@@ -29,14 +29,21 @@
         <!-- ITEMS -->
         <ul class="list-group list-group-flush">
           {% for item in order.items.all %}
-          <li class="list-group-item d-flex justify-content-between align-items-center">
-            <span>
-              {{ item.product.name }}
-              <small class="text-muted">(x{{ item.quantity }})</small>
-            </span>
-            <span class="fw-bold">₹{{ item.price }}</span>
-          </li>
-          {% endfor %}
+<li class="list-group-item d-flex justify-content-between align-items-center">
+    <span>
+      {{ item.product.name }}
+      <small class="text-muted">(x{{ item.quantity }})</small>
+    </span>
+
+    <span class="fw-bold">₹{{ item.price }}</span>
+</li>
+{% endfor %}
+
+<div class="mt-3">
+    <a href="{% url 'track_order' order.id %}" class="btn btn-primary btn-sm">
+        Track Order
+    </a>
+</div>
         </ul>
 
       </div>
