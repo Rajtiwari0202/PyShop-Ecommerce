@@ -23,4 +23,5 @@ urlpatterns = [
     path('payment-success/', views.payment_success, name='payment_success'),
     path('verify-payment/', views.verify_payment, name='verify_payment'),
     path('track-order/<int:order_id>/', views.track_order, name='track_order'),
+    path('invoice/<int:order_id>/', views.download_invoice, name='download_invoice'),
 ]

@@ -4,7 +4,8 @@ from django.contrib.auth.models import User
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 import razorpay
-
+from django.http import HttpResponse
+from reportlab.pdfgen import canvas
 from django.conf import settings
 from .models import Product, Cart, CartItem, Order, OrderItem, Wishlist, Category
 
@@ -309,3 +310,51 @@ def track_order(request, order_id):
     return render(request, 'products/track_order.html', {
         'order': order
     })
+
+# Invoice Download feature
+@login_required
+def download_invoice(request, order_id):
+
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+
+    response = HttpResponse(content_type='application/pdf')
+
+    response['Content-Disposition'] = f'attachment; filename="invoice_{order.id}.pdf"'
+
+    p = canvas.Canvas(response)
+
+    # HEADER
+    p.setFont("Helvetica-Bold", 20)
+    p.drawString(200, 800, "PyShop Invoice")
+
+    # ORDER INFO
+    p.setFont("Helvetica", 12)
+
+    p.drawString(50, 760, f"Order ID: {order.id}")
+    p.drawString(50, 740, f"Customer: {order.user.username}")
+    p.drawString(50, 720, f"Status: {order.status}")
+    p.drawString(50, 700, f"Date: {order.created_at.strftime('%d-%m-%Y')}")
+
+    # ITEMS HEADER
+    p.drawString(50, 650, "Product")
+    p.drawString(300, 650, "Qty")
+    p.drawString(400, 650, "Price")
+
+    y = 620
+
+    # PRODUCTS
+    for item in order.items.all():
+
+        p.drawString(50, y, item.product.name)
+        p.drawString(300, y, str(item.quantity))
+        p.drawString(400, y, f"₹{item.price}")
+
+        y -= 30
+
+    # TOTAL
+    p.setFont("Helvetica-Bold", 14)
+    p.drawString(50, y - 20, f"Total Amount: ₹{order.total_amount}")
+
+    p.save()
+
+    return response
