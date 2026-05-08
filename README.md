@@ -252,7 +252,7 @@ success@razorpay
 Built with ❤️ using Django
 
 GitHub:
-https://github.com/YOUR_USERNAME
+https://github.com/RajTiwari0202
 
 ---
 
