@@ -26,7 +26,7 @@ SECRET_KEY = "django-insecure-00^@9k2shn#ka3r7r3d7nv9kmzk46+lrat3z5m0z2#+*ytzpa-
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 CSRF_TRUSTED_ORIGINS = [
     "https://localhost:8000",
@@ -126,3 +126,5 @@ STATIC_URL = "static/"
 LOGIN_URL = '/login/'
 RAZORPAY_KEY_ID = "rzp_test_Sla3lKb4vNCgJn"
 RAZORPAY_KEY_SECRET = "MRmvpp8DBC96DO2953XD5Om7"
+
+STATIC_ROOT = BASE_DIR / 'staticfiles'
