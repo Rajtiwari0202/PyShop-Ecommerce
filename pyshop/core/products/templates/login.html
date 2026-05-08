@@ -2,28 +2,116 @@
 
 {% block content %}
 
-<div class="row justify-content-center">
+<div class="row justify-content-center align-items-center" style="min-height: 80vh;">
+
   <div class="col-md-5">
 
-    <div class="card p-4 shadow-sm">
-      <h3 class="text-center mb-3">🔐 Login</h3>
+    <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
 
-      <form method="POST">
-        {% csrf_token %}
+      <!-- TOP GRADIENT -->
+      <div class="p-4 text-center text-white"
+           style="background: linear-gradient(135deg, #0d6efd, #6610f2);">
 
-        <input name="username" class="form-control mb-3" placeholder="Username">
-        <input name="password" type="password" class="form-control mb-3" placeholder="Password">
+        <h2 class="fw-bold mb-1">Welcome Back 👋</h2>
+        <p class="mb-0 opacity-75">
+          Login to continue shopping on PyShop
+        </p>
 
-        <button class="btn btn-success w-100">Login</button>
-      </form>
+      </div>
 
-      <p class="text-center mt-3">
-        New user? <a href="{% url 'signup' %}">Signup</a>
-      </p>
+      <!-- BODY -->
+      <div class="card-body p-4 p-lg-5">
+
+        <form method="POST">
+          {% csrf_token %}
+
+          <!-- USERNAME -->
+          <div class="mb-4">
+
+            <label class="form-label fw-semibold">
+              Username
+            </label>
+
+            <div class="input-group">
+
+              <span class="input-group-text bg-light">
+                <i class="bi bi-person"></i>
+              </span>
+
+              <input
+                type="text"
+                name="username"
+                class="form-control py-2"
+                placeholder="Enter username"
+                required
+              >
+
+            </div>
+
+          </div>
+
+          <!-- PASSWORD -->
+          <div class="mb-4">
+
+            <label class="form-label fw-semibold">
+              Password
+            </label>
+
+            <div class="input-group">
+
+              <span class="input-group-text bg-light">
+                <i class="bi bi-lock"></i>
+              </span>
+
+              <input
+                type="password"
+                name="password"
+                class="form-control py-2"
+                placeholder="Enter password"
+                required
+              >
+
+            </div>
+
+          </div>
+
+          <!-- LOGIN BUTTON -->
+          <button class="btn btn-primary w-100 py-2 fw-semibold rounded-3 shadow-sm">
+            <i class="bi bi-box-arrow-in-right"></i>
+            Login
+          </button>
+
+        </form>
+
+        <!-- DIVIDER -->
+        <div class="text-center my-4 text-muted">
+          OR
+        </div>
+
+        <!-- GOOGLE LOGIN UI ONLY -->
+        <button class="btn btn-light border w-100 py-2 rounded-3">
+          <i class="bi bi-google text-danger"></i>
+          Continue with Google
+        </button>
+
+        <!-- SIGNUP -->
+        <p class="text-center mt-4 mb-0">
+
+          Don't have an account?
+
+          <a href="{% url 'signup' %}"
+             class="fw-semibold text-decoration-none">
+            Create Account
+          </a>
+
+        </p>
+
+      </div>
 
     </div>
 
   </div>
+
 </div>
 
 {% endblock %}

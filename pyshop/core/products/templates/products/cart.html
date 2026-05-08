@@ -2,106 +2,254 @@
 
 {% block content %}
 
-<h2 class="mb-4 fw-bold">🛒 Your Cart</h2>
+<div class="d-flex justify-content-between align-items-center mb-4">
+
+    <div>
+        <h2 class="fw-bold mb-1">🛒 Shopping Cart</h2>
+        <p class="text-muted mb-0">
+            Review your items before checkout
+        </p>
+    </div>
+
+    <a href="/"
+       class="btn btn-outline-dark rounded-3">
+
+        <i class="bi bi-arrow-left"></i>
+        Continue Shopping
+
+    </a>
+
+</div>
 
 {% if cart_items %}
 
-<div class="row">
+<div class="row g-4">
 
-  <!-- 🛍 CART ITEMS -->
-  <div class="col-lg-8">
+    <!-- CART ITEMS -->
+    <div class="col-lg-8">
 
-    {% for item in cart_items %}
-    <div class="card mb-3 shadow-sm border-0">
-      <div class="row g-0 align-items-center">
+        {% for item in cart_items %}
 
-        <!-- IMAGE -->
-        <div class="col-md-3 text-center p-2">
-          <img src="{{ item.product.image_url|default:'https://via.placeholder.com/150' }}"
-               class="img-fluid rounded"
-               style="max-height:120px; object-fit:cover;">
+        <div class="card border-0 shadow-lg rounded-4 mb-4 overflow-hidden">
+
+            <div class="card-body p-4">
+
+                <div class="row align-items-center">
+
+                    <!-- IMAGE -->
+                    <div class="col-md-3 text-center">
+
+                        <img src="{{ item.product.image_url|default:'https://via.placeholder.com/300' }}"
+                             class="img-fluid rounded-4"
+                             style="height:160px; width:100%; object-fit:cover;">
+
+                    </div>
+
+                    <!-- DETAILS -->
+                    <div class="col-md-5">
+
+                        <h4 class="fw-bold mb-2">
+                            {{ item.product.name }}
+                        </h4>
+
+                        <p class="text-muted mb-3">
+                            Premium quality product from PyShop
+                        </p>
+
+                        <h3 class="text-success fw-bold mb-0">
+                            ₹{{ item.product.price }}
+                        </h3>
+
+                    </div>
+
+                    <!-- QUANTITY -->
+                    <div class="col-md-2 text-center">
+
+                        <p class="fw-semibold mb-2">
+                            Quantity
+                        </p>
+
+                        <div class="d-flex justify-content-center align-items-center gap-2">
+
+                            <a href="{% url 'decrease_quantity' item.product.id %}"
+                               class="btn btn-outline-danger rounded-circle">
+
+                                -
+
+                            </a>
+
+                            <span class="fw-bold fs-5">
+                                {{ item.quantity }}
+                            </span>
+
+                            <a href="{% url 'increase_quantity' item.product.id %}"
+                               class="btn btn-outline-success rounded-circle">
+
+                                +
+
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                    <!-- REMOVE -->
+                    <div class="col-md-2 text-center">
+
+                        <p class="fw-semibold mb-2">
+                            Total
+                        </p>
+
+                        <h5 class="fw-bold mb-3">
+                            ₹{{ item.total_price }}
+                        </h5>
+
+                        <a href="{% url 'remove_from_cart' item.product.id %}"
+                           class="btn btn-outline-danger rounded-3 btn-sm">
+
+                            <i class="bi bi-trash"></i>
+                            Remove
+
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+
         </div>
 
-        <!-- DETAILS -->
-        <div class="col-md-5">
-          <div class="card-body">
-            <h5 class="mb-1">{{ item.product.name }}</h5>
-            <p class="text-success fw-bold mb-1">₹{{ item.product.price }}</p>
-            <small class="text-muted">Subtotal: ₹{{ item.total_price }}</small>
-          </div>
-        </div>
+        {% endfor %}
 
-        <!-- QUANTITY -->
-        <div class="col-md-2 text-center">
-          <div class="d-flex justify-content-center align-items-center gap-2">
-
-            <a href="{% url 'decrease_quantity' item.product.id %}" 
-               class="btn btn-outline-danger btn-sm">-</a>
-
-            <span class="fw-bold">{{ item.quantity }}</span>
-
-            <a href="{% url 'increase_quantity' item.product.id %}" 
-               class="btn btn-outline-success btn-sm">+</a>
-
-          </div>
-        </div>
-
-        <!-- REMOVE -->
-        <div class="col-md-2 text-center">
-          <a href="{% url 'remove_from_cart' item.product.id %}" 
-             class="btn btn-outline-warning btn-sm">
-            Remove
-          </a>
-        </div>
-
-      </div>
     </div>
-    {% endfor %}
 
-  </div>
+    <!-- SUMMARY -->
+    <div class="col-lg-4">
 
-  <!-- 💰 SUMMARY -->
-  <div class="col-lg-4">
-    <div class="card shadow-sm p-3">
+        <div class="card border-0 shadow-lg rounded-4 sticky-top"
+             style="top:100px;">
 
-      <h5 class="fw-bold mb-3">Order Summary</h5>
+            <div class="card-body p-4">
 
-      <div class="d-flex justify-content-between">
-        <span>Items Total</span>
-        <span>₹{{ total_price }}</span>
-      </div>
+                <h4 class="fw-bold mb-4">
+                    💳 Order Summary
+                </h4>
 
-      <div class="d-flex justify-content-between text-muted">
-        <span>Delivery</span>
-        <span>Free</span>
-      </div>
+                <!-- SUMMARY DETAILS -->
+                <div class="d-flex justify-content-between mb-3">
 
-      <hr>
+                    <span class="text-muted">
+                        Subtotal
+                    </span>
 
-      <div class="d-flex justify-content-between fw-bold fs-5">
-        <span>Total</span>
-        <span>₹{{ total_price }}</span>
-      </div>
+                    <span class="fw-semibold">
+                        ₹{{ total_price }}
+                    </span>
 
-      <a href="{% url 'checkout' %}" 
-         class="btn btn-primary w-100 mt-3">
-        Proceed to Checkout
-      </a>
+                </div>
 
-      <a href="/" class="btn btn-outline-secondary w-100 mt-2">
-        ⬅ Continue Shopping
-      </a>
+                <div class="d-flex justify-content-between mb-3">
+
+                    <span class="text-muted">
+                        Shipping
+                    </span>
+
+                    <span class="text-success fw-semibold">
+                        FREE
+                    </span>
+
+                </div>
+
+                <div class="d-flex justify-content-between mb-3">
+
+                    <span class="text-muted">
+                        Taxes
+                    </span>
+
+                    <span>
+                        Included
+                    </span>
+
+                </div>
+
+                <hr>
+
+                <!-- TOTAL -->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+
+                    <h5 class="fw-bold mb-0">
+                        Total
+                    </h5>
+
+                    <h3 class="fw-bold text-success mb-0">
+                        ₹{{ total_price }}
+                    </h3>
+
+                </div>
+
+                <!-- CHECKOUT BUTTON -->
+                <a href="{% url 'checkout' %}"
+                   class="btn btn-primary w-100 py-3 rounded-3 fw-semibold shadow-sm">
+
+                    <i class="bi bi-credit-card"></i>
+                    Proceed to Checkout
+
+                </a>
+
+                <!-- SECURITY -->
+                <div class="text-center mt-4">
+
+                    <small class="text-muted">
+
+                        🔒 Secure Checkout Powered by Razorpay
+
+                    </small>
+
+                </div>
+
+            </div>
+
+        </div>
 
     </div>
-  </div>
 
 </div>
 
 {% else %}
 
-<div class="text-center mt-5">
-    <h4>Your cart is empty 😢</h4>
-    <a href="/" class="btn btn-primary mt-3">Shop Now</a>
+<!-- EMPTY CART -->
+<div class="row justify-content-center">
+
+    <div class="col-lg-6">
+
+        <div class="card border-0 shadow-lg rounded-4 text-center p-5">
+
+            <div class="display-1 mb-4">
+                🛒
+            </div>
+
+            <h2 class="fw-bold mb-3">
+                Your Cart is Empty
+            </h2>
+
+            <p class="text-muted mb-4">
+                Looks like you haven't added anything yet.
+                Start exploring our amazing products now.
+            </p>
+
+            <a href="/"
+               class="btn btn-primary btn-lg rounded-3 px-4">
+
+                <i class="bi bi-bag"></i>
+                Start Shopping
+
+            </a>
+
+        </div>
+
+    </div>
+
 </div>
 
 {% endif %}

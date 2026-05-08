@@ -1,156 +1,134 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Secure Checkout | PyShop</title>
-    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+{% extends 'base.html' %}
 
-    <style>
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: #f5f5f5;
-        }
+{% block content %}
 
-        .container {
-            max-width: 500px;
-            margin: 80px auto;
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
-            text-align: center;
-        }
+<div class="row justify-content-center">
 
-        h2 {
-            margin-bottom: 10px;
-        }
+    <div class="col-lg-6">
 
-        .amount {
-            font-size: 28px;
-            font-weight: bold;
-            color: #2ecc71;
-            margin: 20px 0;
-        }
+        <div class="card shadow-lg p-5 glass">
 
-        .desc {
-            color: #777;
-            margin-bottom: 30px;
-        }
+            <div class="text-center">
 
-        .pay-btn {
-            background: #3399cc;
-            color: white;
-            border: none;
-            padding: 15px 25px;
-            font-size: 16px;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: 0.3s;
-            width: 100%;
-        }
+                <h2 class="fw-bold mb-3">
+                    🔐 Secure Checkout
+                </h2>
 
-        .pay-btn:hover {
-            background: #287aa3;
-        }
+                <p class="text-muted">
+                    Fast • Secure • Trusted Payments
+                </p>
 
-        .secure {
-            margin-top: 20px;
-            font-size: 13px;
-            color: #999;
-        }
-    </style>
-</head>
-<body>
+                <div class="display-5 fw-bold text-success my-4">
+                    ₹{{ total }}
+                </div>
 
-<div class="container">
-    <h2>🔐 Secure Checkout</h2>
-    <p class="desc">Complete your payment safely using Razorpay</p>
+                <button id="pay-btn"
+                        class="btn btn-primary btn-lg w-100 py-3">
 
-    <div class="amount">₹{{ total }}</div>
+                    Pay Securely
+                </button>
 
-    <button class="pay-btn" id="pay-btn">Pay Now</button>
+                <div class="mt-4 text-muted small">
+                    Powered by Razorpay
+                </div>
 
-    <div class="secure">100% Secure Payments • Powered by Razorpay</div>
+            </div>
+
+        </div>
+
+    </div>
+
 </div>
 
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
 <script>
-    var options = {
-        "key": "{{ razorpay_key }}",
-        "amount": "{{ payment.amount }}",
-        "currency": "INR",
-        "name": "PyShop",
-        "description": "Order Payment",
-        "order_id": "{{ payment.id }}",
 
-        // ✅ FORCE ENABLE METHODS
-        "method": {
-            "upi": true,
-            "card": true,
-            "netbanking": true,
-            "wallet": true
-        },
+var options = {
 
-        // ✅ Better UX
-        "prefill": {
-            "name": "{{ request.user.username }}",
-            "email": "test@example.com"
-        },
+    "key": "{{ razorpay_key }}",
 
-        // ✅ Required for smoother checkout
-        "config": {
-            "display": {
-                "blocks": {
-                    "upi": {
-                        "name": "Pay using UPI",
-                        "instruments": [
-                            { "method": "upi" }
-                        ]
-                    }
-                },
-                "sequence": ["block.upi"],
-                "preferences": {
-                    "show_default_blocks": true
-                }
-            }
-        },
+    "amount": "{{ payment.amount }}",
 
-        "handler": function (response) {
+    "currency": "INR",
 
-            fetch("/verify-payment/", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRFToken": "{{ csrf_token }}"
-                },
-                body: JSON.stringify({
-                    razorpay_payment_id: response.razorpay_payment_id,
-                    razorpay_order_id: response.razorpay_order_id,
-                    razorpay_signature: response.razorpay_signature
-                })
+    "name": "PyShop",
+
+    "description": "Complete Your Purchase",
+
+    "image": "https://cdn-icons-png.flaticon.com/512/3081/3081559.png",
+
+    "order_id": "{{ payment.id }}",
+
+    "method": {
+        "upi": true,
+        "card": true,
+        "netbanking": true,
+        "wallet": true
+    },
+
+    "prefill": {
+        "name": "{{ request.user.username }}",
+        "email": "customer@example.com"
+    },
+
+    "theme": {
+        "color": "#2563eb"
+    },
+
+    "handler": function (response) {
+
+        fetch("/verify-payment/", {
+
+            method: "POST",
+
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": "{{ csrf_token }}"
+            },
+
+            body: JSON.stringify({
+
+                razorpay_payment_id: response.razorpay_payment_id,
+
+                razorpay_order_id: response.razorpay_order_id,
+
+                razorpay_signature: response.razorpay_signature
+
             })
-            .then(res => res.json())
-            .then(data => {
-                if (data.status === "success") {
-                    window.location.href = "/payment-success/";
-                } else {
-                    alert("Payment verification failed!");
-                }
-            });
-        },
 
-        "theme": {
-            "color": "#3399cc"
-        }
-    };
+        })
 
-    var rzp = new Razorpay(options);
+        .then(res => res.json())
 
-    document.getElementById('pay-btn').onclick = function(e){
-        rzp.open();
-        e.preventDefault();
+        .then(data => {
+
+            if(data.status === "success"){
+
+                window.location.href = "/payment-success/";
+
+            } else {
+
+                alert("Payment verification failed");
+
+            }
+
+        });
+
     }
+
+};
+
+var rzp = new Razorpay(options);
+
+document.getElementById('pay-btn').onclick = function(e){
+
+    rzp.open();
+
+    e.preventDefault();
+
+}
+
 </script>
 
-</body>
-</html>
+{% endblock %}

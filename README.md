@@ -1,124 +1,271 @@
-# 🛒 PyShop-Ecommerce
+# 🛍 PyShop — Modern Django E-Commerce Platform
 
-**PyShop-Ecommerce** is a beginner-friendly e-commerce web application built using the Django web framework. It provides a clean, modular structure for managing products, enabling admin functionality, and rendering content dynamically using Django's built-in templating system. This project is ideal for anyone learning Django or looking to build real-world projects to strengthen backend and full-stack development skills.
-
----
-
-## 🚀 Features
-
-- 🔐 Admin panel to manage products (CRUD operations)
-- 📦 Product catalog: name, price, stock, image support
-- 🧩 Modular architecture with Django apps
-- 🛠️ Built-in Django ORM and admin interface
-- 🖼️ Dynamic HTML templating
-- 🧑‍💻 Clean and customizable codebase
+PyShop is a full-stack modern e-commerce web application built using Django.  
+It includes authentication, cart system, Razorpay payment integration, wishlist, reviews, invoices, order tracking, and a responsive modern UI.
 
 ---
 
-## 🧰 Tech Stack
+# 🚀 Features
 
-- **Backend**: Django (Python)
-- **Frontend**: HTML (Django templating)
-- **Database**: SQLite (default for Django)
-- **Environment**: Virtualenv (recommended)
-- **Admin Tools**: Django's built-in admin
+## 🔐 Authentication System
+- User Signup
+- User Login / Logout
+- Protected routes using Django authentication
+
+## 🛒 Shopping Features
+- Add to Cart
+- Remove from Cart
+- Increase / Decrease Quantity
+- Wishlist System
+- Buy Now functionality
+
+## 💳 Payment Gateway
+- Razorpay Integration
+- Secure Payment Verification
+- UPI / Card / Net Banking support
+- Payment Success Flow
+
+## 📦 Order Management
+- Order History
+- Track Orders
+- Invoice Download System
+- Real-time Order Status
+
+## ⭐ Product Reviews
+- Product Ratings
+- Customer Reviews
+- Average Rating System
+
+## 🔍 Product Features
+- Product Search
+- Category Filtering
+- Price Filtering
+- Related Products
+
+## 🎨 Modern UI
+- Responsive Bootstrap 5 Design
+- Toast Notifications
+- Beautiful Product Cards
+- Mobile-Friendly Layout
+- Smooth Hover Effects
 
 ---
 
-## 📁 Project Structure
+# 🛠 Tech Stack
 
-PyShop-Ecommerce/
-│
-├── pyshop/ # Main Django app
-│ ├── init.py
-│ ├── admin.py # Admin configurations
-│ ├── apps.py
-│ ├── models.py # Product model
-│ ├── views.py # Renders product list
-│ ├── urls.py # URL routing for the app
-│ ├── migrations/ # Database migration files
-│ └── templates/
-│ └── products/
-│ └── product_list.html
-│
-├── pyshop_project/ # Project-level config (manage.py sibling)
-│ ├── init.py
-│ ├── settings.py
-│ ├── urls.py
-│ └── wsgi.py
-│
-├── db.sqlite3 # SQLite database
-├── manage.py
-├── requirements.txt
-└── .gitignore
-
+| Technology | Usage |
+|------------|-------|
+| Python | Backend |
+| Django | Web Framework |
+| SQLite | Database |
+| Razorpay | Payment Gateway |
+| Bootstrap 5 | Frontend Styling |
+| HTML/CSS | Frontend |
+| JavaScript | Dynamic Features |
 
 ---
 
-## ✅ Requirements
-
-Make sure Python 3.7+ and `pip` are installed.
-
-### Create virtual environment
+# 📂 Project Structure
 
 ```bash
-python -m venv env
-source env/bin/activate        # macOS/Linux
-# or
-.\env\Scripts\activate         # Windows
+pyshop/
+│
+├── core/
+│   ├── products/
+│   │   ├── migrations/
+│   │   ├── templates/
+│   │   │   └── products/
+│   │   ├── admin.py
+│   │   ├── models.py
+│   │   ├── urls.py
+│   │   ├── views.py
+│   │   └── context_processors.py
+│   │
+│   ├── core/
+│   └── manage.py
+│
+└── README.md
+```
 
-Install dependencies
+---
 
+# ⚙️ Installation
+
+## 1️⃣ Clone Repository
+
+```bash
+git clone https://github.com/YOUR_USERNAME/PyShop-Ecommerce.git
+```
+
+## 2️⃣ Navigate to Project
+
+```bash
+cd PyShop-Ecommerce
+```
+
+## 3️⃣ Create Virtual Environment
+
+```bash
+python -m venv venv
+```
+
+## 4️⃣ Activate Virtual Environment
+
+### Windows
+
+```bash
+venv\Scripts\activate
+```
+
+### Linux / Mac
+
+```bash
+source venv/bin/activate
+```
+
+---
+
+# 📦 Install Dependencies
+
+```bash
 pip install -r requirements.txt
+```
 
-⚙️ Setup Instructions
-Step 1: Apply Migrations
+---
 
+# 🔑 Setup Environment Variables
+
+Create a `.env` file:
+
+```env
+RAZORPAY_KEY_ID=your_key
+RAZORPAY_KEY_SECRET=your_secret
+SECRET_KEY=your_django_secret
+DEBUG=True
+```
+
+---
+
+# 🗄 Run Migrations
+
+```bash
 python manage.py makemigrations
 python manage.py migrate
+```
 
-Step 2: Create Superuser
+---
 
+# 👤 Create Superuser
+
+```bash
 python manage.py createsuperuser
+```
 
-▶️ Running the Server
+---
 
+# ▶ Run Server
+
+```bash
 python manage.py runserver
+```
 
-Visit the site: http://127.0.0.1:8000
+Visit:
 
-Admin panel: http://127.0.0.1:8000/admin/
+```bash
+http://127.0.0.1:8000/
+```
 
-🛒 How to Use
+---
 
-    Log into the admin panel with your superuser credentials.
+# 💳 Razorpay Test Payment
 
-    Under “Products”, add new items with name, price, stock count, and an image URL.
+Use Razorpay Test Mode:
 
-    Visit the main page to see the product list displayed.
+### Test Card
 
-💡 Future Improvements
+```text
+Card Number: 4111 1111 1111 1111
+Expiry: Any future date
+CVV: Any 3 digits
+OTP: 1234
+```
 
-    User signup/login
+### Test UPI
 
-    Add-to-cart and checkout functionality
+```text
+success@razorpay
+```
 
-    Product filtering and search
+---
 
-    Pagination and responsive layout
+# 📸 Screenshots
 
-    Payment integration (e.g., Stripe)
+## 🏠 Homepage
+- Product Listing
+- Filters
+- Search System
 
-    Full Bootstrap or Tailwind CSS frontend
+## 🛒 Cart Page
+- Quantity Controls
+- Dynamic Total
 
-    Product detail pages
+## 💳 Payment Page
+- Razorpay Checkout
+- UPI Payments
 
-🧾 License
+## 📦 Orders
+- Order Tracking
+- Invoice Download
 
-This project is licensed under the MIT License.
-🙌 Acknowledgements
+---
 
-This project is built as part of a learning journey in Python and Django development. Huge thanks to the Django documentation and open-source community for guidance.
-🔗 Connect
+# 🔥 Future Improvements
 
-Made with ❤️ by Raj Tiwari
+- PostgreSQL Integration
+- Docker Deployment
+- AI Product Recommendations
+- Email Invoice System
+- REST API
+- React Frontend
+- Admin Analytics Dashboard
+- Redis Caching
+- Coupon System
+
+---
+
+# 📚 What I Learned
+
+- Django Authentication
+- Payment Gateway Integration
+- Database Relationships
+- Secure Payment Verification
+- Dynamic UI Rendering
+- E-Commerce Workflows
+- Full Stack Development
+
+---
+
+# 👨‍💻 Author
+
+## Raj Tiwari
+
+Built with ❤️ using Django
+
+GitHub:
+https://github.com/YOUR_USERNAME
+
+---
+
+# ⭐ Support
+
+If you like this project:
+
+- Star this repository ⭐
+- Fork it 🍴
+- Share it 🚀
+
+---
+
+# 📄 License
+
+This project is for educational purposes.

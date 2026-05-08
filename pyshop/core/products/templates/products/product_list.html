@@ -2,131 +2,397 @@
 
 {% block content %}
 
-<div class="row">
+<style>
 
-  <!-- 🔥 SIDEBAR -->
-  <div class="col-md-3 mb-4">
-    <div class="card p-3 shadow-sm sticky-top" style="top: 20px;">
+.product-card {
+    transition: 0.3s;
+    border-radius: 18px;
+    overflow: hidden;
+}
 
-      <h5 class="mb-3">🔍 Filters</h5>
+.product-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.12);
+}
 
-      <form method="GET">
+.product-image {
+    height: 240px;
+    object-fit: cover;
+    transition: 0.4s;
+}
 
-        <!-- SEARCH -->
-        <input 
-          type="text" 
-          name="q" 
-          value="{{ request.GET.q }}" 
-          class="form-control mb-3" 
-          placeholder="Search products..."
-        >
+.product-card:hover .product-image {
+    transform: scale(1.05);
+}
 
-        <!-- CATEGORY -->
-        <label class="fw-bold">Category</label>
-        <select name="category" class="form-control mb-3">
-          <option value="">All</option>
-          {% for cat in categories %}
-            <option value="{{ cat.id }}" 
-              {% if request.GET.category == cat.id|stringformat:"s" %}selected{% endif %}>
-              {{ cat.name }}
-            </option>
-          {% endfor %}
-        </select>
+.filter-card {
+    border-radius: 18px;
+}
 
-        <!-- PRICE -->
-        <label class="fw-bold">Min Price</label>
-        <input 
-          type="number" 
-          name="min_price" 
-          value="{{ request.GET.min_price }}" 
-          class="form-control mb-2"
-        >
+.price-text {
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: #16a34a;
+}
 
-        <label class="fw-bold">Max Price</label>
-        <input 
-          type="number" 
-          name="max_price" 
-          value="{{ request.GET.max_price }}" 
-          class="form-control mb-3"
-        >
+.category-badge {
+    background: #f1f5f9;
+    color: #555;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+}
 
-        <button class="btn btn-primary w-100 mb-2">Apply Filters</button>
+.hero-banner {
+    background: linear-gradient(135deg, #0f172a, #2563eb);
+    border-radius: 24px;
+    color: white;
+    padding: 50px;
+    margin-bottom: 40px;
+}
 
-        <a href="/" class="btn btn-outline-secondary w-100">Reset</a>
+.hero-title {
+    font-size: 2.7rem;
+    font-weight: bold;
+}
 
-      </form>
+.hero-subtitle {
+    opacity: 0.9;
+    font-size: 1.1rem;
+}
+
+.action-btn {
+    border-radius: 10px;
+}
+
+</style>
+
+<!-- HERO SECTION -->
+
+<div class="hero-banner shadow-lg">
+
+    <div class="row align-items-center">
+
+        <div class="col-lg-7">
+
+            <h1 class="hero-title">
+                Discover Amazing Products
+            </h1>
+
+            <p class="hero-subtitle mt-3">
+                Shop premium products with fast delivery,
+                secure payments and modern shopping experience.
+            </p>
+
+        </div>
+
+        <div class="col-lg-5 text-center">
+
+            <h1 style="font-size: 120px;">
+                🛍️
+            </h1>
+
+        </div>
 
     </div>
-  </div>
 
-  <!-- 🛍 PRODUCTS -->
-  <div class="col-md-9">
+</div>
 
-    <div class="row">
+<div class="row g-4">
 
-      {% if products %}
-        {% for product in products %}
-        <div class="col-lg-4 col-md-6 mb-4">
-          <div class="card shadow-sm h-100 border-0">
+    <!-- SIDEBAR -->
 
-            <img src="{{ product.image_url|default:'https://via.placeholder.com/300' }}"
-                 class="card-img-top"
-                 style="height:200px; object-fit:cover;">
+    <div class="col-lg-3">
 
-            <div class="card-body text-center d-flex flex-column">
+        <div class="card filter-card shadow-sm border-0 p-4 sticky-top"
+             style="top: 20px;">
 
-              <h5 class="fw-bold">{{ product.name }}</h5>
+            <h4 class="fw-bold mb-4">
+                🔍 Filters
+            </h4>
 
-              <!-- SAFE CATEGORY -->
-              <p class="text-muted small">
-                {{ product.category.name|default:"Uncategorized" }}
-              </p>
+            <form method="GET">
 
-              <p class="text-success fw-bold fs-5">₹{{ product.price }}</p>
+                <!-- SEARCH -->
 
-              <div class="mt-auto d-flex justify-content-center gap-2 flex-wrap">
+                <div class="mb-4">
 
-                <a href="{% url 'product_detail' product.id %}" 
-                   class="btn btn-outline-primary btn-sm">
-                  View
+                    <label class="form-label fw-semibold">
+                        Search
+                    </label>
+
+                    <input type="text"
+                           name="q"
+                           value="{{ request.GET.q }}"
+                           class="form-control"
+                           placeholder="Search products...">
+
+                </div>
+
+                <!-- CATEGORY -->
+
+                <div class="mb-4">
+
+                    <label class="form-label fw-semibold">
+                        Category
+                    </label>
+
+                    <select name="category"
+                            class="form-select">
+
+                        <option value="">
+                            All Categories
+                        </option>
+
+                        {% for cat in categories %}
+
+                        <option value="{{ cat.id }}"
+                            {% if request.GET.category == cat.id|stringformat:"s" %}
+                                selected
+                            {% endif %}>
+
+                            {{ cat.name }}
+
+                        </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+                <!-- PRICE -->
+
+                <div class="mb-3">
+
+                    <label class="form-label fw-semibold">
+                        Min Price
+                    </label>
+
+                    <input type="number"
+                           name="min_price"
+                           value="{{ request.GET.min_price }}"
+                           class="form-control">
+
+                </div>
+
+                <div class="mb-4">
+
+                    <label class="form-label fw-semibold">
+                        Max Price
+                    </label>
+
+                    <input type="number"
+                           name="max_price"
+                           value="{{ request.GET.max_price }}"
+                           class="form-control">
+
+                </div>
+
+                <button class="btn btn-primary w-100 mb-2 action-btn">
+                    Apply Filters
+                </button>
+
+                <a href="/"
+                   class="btn btn-outline-dark w-100 action-btn">
+
+                    Reset
+
                 </a>
 
-                <form method="POST" action="{% url 'add_to_cart' product.id %}">
-                  {% csrf_token %}
-                  <button class="btn btn-success btn-sm">🛒</button>
-                </form>
+            </form>
 
-                {% if product.id in wishlist_items %}
-                  <form method="POST" action="{% url 'remove_from_wishlist' product.id %}">
-                    {% csrf_token %}
-                    <button class="btn btn-danger btn-sm">❤️ Added</button>
-                  </form>
-                {% else %}
-                  <form method="POST" action="{% url 'add_to_wishlist' product.id %}">
-                    {% csrf_token %}
-                    <button class="btn btn-outline-danger btn-sm">🤍</button>
-                  </form>
-                {% endif %}
-
-              </div>
-
-            </div>
-          </div>
         </div>
-        {% endfor %}
-
-      {% else %}
-        <!-- EMPTY STATE -->
-        <div class="text-center mt-5">
-          <h4>No products found 😔</h4>
-          <p class="text-muted">Try adjusting your filters</p>
-          <a href="/" class="btn btn-primary">Browse All</a>
-        </div>
-      {% endif %}
 
     </div>
 
-  </div>
+    <!-- PRODUCTS -->
+
+    <div class="col-lg-9">
+
+        <!-- TOP BAR -->
+
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+
+            <div>
+
+                <h2 class="fw-bold mb-1">
+                    Trending Products
+                </h2>
+
+                <p class="text-muted mb-0">
+                    {{ products|length }} Products Available
+                </p>
+
+            </div>
+
+            <div>
+
+                <span class="badge bg-dark px-3 py-2">
+                    Fast Delivery 🚚
+                </span>
+
+            </div>
+
+        </div>
+
+        <!-- PRODUCT GRID -->
+
+        <div class="row">
+
+            {% if products %}
+
+                {% for product in products %}
+
+                <div class="col-lg-4 col-md-6 mb-4">
+
+                    <div class="card product-card border-0 h-100">
+
+                        <!-- IMAGE -->
+
+                        <div class="overflow-hidden position-relative">
+
+                            <img src="{{ product.image_url|default:'https://via.placeholder.com/400' }}"
+                                 class="card-img-top product-image">
+
+                            <span class="badge bg-success position-absolute top-0 end-0 m-3">
+                                New
+                            </span>
+
+                        </div>
+
+                        <!-- BODY -->
+
+                        <div class="card-body d-flex flex-column p-4">
+
+                            <div class="mb-2">
+
+                                <span class="category-badge">
+
+                                    {{ product.category.name|default:"Uncategorized" }}
+
+                                </span>
+
+                            </div>
+
+                            <h5 class="fw-bold mt-2">
+
+                                {{ product.name }}
+
+                            </h5>
+
+                            <p class="text-muted small flex-grow-1">
+
+                                Premium quality product with modern design.
+
+                            </p>
+
+                            <div class="price-text mb-3">
+
+                                ₹{{ product.price }}
+
+                            </div>
+
+                            <!-- BUTTONS -->
+
+                            <div class="d-flex gap-2 flex-wrap">
+
+                                <a href="{% url 'product_detail' product.id %}"
+                                   class="btn btn-outline-primary btn-sm flex-grow-1 action-btn">
+
+                                    View
+
+                                </a>
+
+                                <!-- CART -->
+
+                                <form method="POST"
+                                      action="{% url 'add_to_cart' product.id %}">
+
+                                    {% csrf_token %}
+
+                                    <button class="btn btn-success btn-sm action-btn">
+                                        🛒
+                                    </button>
+
+                                </form>
+
+                                <!-- WISHLIST -->
+
+                                {% if product.id in wishlist_items %}
+
+                                <form method="POST"
+                                      action="{% url 'remove_from_wishlist' product.id %}">
+
+                                    {% csrf_token %}
+
+                                    <button class="btn btn-danger btn-sm action-btn">
+                                        ❤️
+                                    </button>
+
+                                </form>
+
+                                {% else %}
+
+                                <form method="POST"
+                                      action="{% url 'add_to_wishlist' product.id %}">
+
+                                    {% csrf_token %}
+
+                                    <button class="btn btn-outline-danger btn-sm action-btn">
+                                        🤍
+                                    </button>
+
+                                </form>
+
+                                {% endif %}
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                {% endfor %}
+
+            {% else %}
+
+            <!-- EMPTY STATE -->
+
+            <div class="text-center py-5">
+
+                <div class="card border-0 shadow-sm p-5">
+
+                    <h1 style="font-size: 80px;">
+                        😔
+                    </h1>
+
+                    <h3 class="fw-bold mt-3">
+                        No Products Found
+                    </h3>
+
+                    <p class="text-muted">
+                        Try changing filters or browse all products.
+                    </p>
+
+                    <a href="/"
+                       class="btn btn-primary px-4">
+
+                        Browse All
+
+                    </a>
+
+                </div>
+
+            </div>
+
+            {% endif %}
+
+        </div>
+
+    </div>
 
 </div>
 

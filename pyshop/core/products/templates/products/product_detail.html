@@ -2,153 +2,353 @@
 
 {% block content %}
 
-<div class="row">
+<div class="row g-5">
 
-  <!-- IMAGE -->
-  <div class="col-md-5 mb-4">
-    <div class="card shadow-sm border-0">
-      <img src="{{ product.image_url|default:'https://via.placeholder.com/400' }}"
-           class="img-fluid rounded"
-           style="max-height:400px; object-fit:cover;">
-    </div>
-  </div>
+    <!-- PRODUCT IMAGE -->
 
-  <!-- DETAILS -->
-  <div class="col-md-7">
+    <div class="col-lg-5">
 
-    <h2 class="fw-bold">{{ product.name }}</h2>
+        <div class="card shadow-lg border-0 overflow-hidden">
 
-    <p class="text-muted">{{ product.category.name }}</p>
+            <img src="{{ product.image_url|default:'https://via.placeholder.com/500' }}"
+                 class="img-fluid"
+                 style="height:500px; object-fit:cover;">
 
-    <h3 class="text-success fw-bold">₹{{ product.price }}</h3>
-
-    <p class="mt-3">{{ product.description }}</p>
-
-    <!-- ACTION BUTTONS -->
-    <div class="mt-4 d-flex gap-3 flex-wrap">
-
-      <!-- ADD TO CART -->
-      <form method="POST" action="{% url 'add_to_cart' product.id %}">
-        {% csrf_token %}
-        <button class="btn btn-success btn-lg px-4">
-          🛒 Add to Cart
-        </button>
-      </form>
-
-      <!-- BUY NOW -->
-      <form method="POST" action="{% url 'add_to_cart' product.id %}">
-        {% csrf_token %}
-        <button class="btn btn-warning btn-lg px-4">
-          ⚡ Buy Now
-        </button>
-      </form>
-
-      <!-- WISHLIST -->
-      <form method="POST" action="{% url 'add_to_wishlist' product.id %}">
-        {% csrf_token %}
-        <button class="btn btn-outline-danger btn-lg">
-          ❤️ Wishlist
-        </button>
-      </form>
+        </div>
 
     </div>
-            <hr class="my-5">
 
-            <h3>Customer Reviews</h3>
+    <!-- PRODUCT DETAILS -->
 
-            <h5 class="mb-3">
-                Average Rating: ⭐ {{ average_rating }}/5
+    <div class="col-lg-7">
+
+        <span class="badge bg-dark mb-3 px-3 py-2">
+            {{ product.category.name }}
+        </span>
+
+        <h1 class="fw-bold mb-3">
+            {{ product.name }}
+        </h1>
+
+        <div class="d-flex align-items-center gap-3 mb-3">
+
+            <h2 class="text-success fw-bold mb-0">
+                ₹{{ product.price }}
+            </h2>
+
+            <span class="badge bg-success">
+                In Stock
+            </span>
+
+        </div>
+
+        <!-- RATING -->
+
+        <div class="mb-4">
+
+            <span class="text-warning fs-5">
+                ⭐⭐⭐⭐⭐
+            </span>
+
+            <span class="text-muted">
+                ({{ reviews.count }} Reviews)
+            </span>
+
+        </div>
+
+        <!-- DESCRIPTION -->
+
+        <div class="card border-0 shadow-sm p-4 mb-4 bg-light">
+
+            <h5 class="fw-bold mb-3">
+                Product Description
             </h5>
 
-            {% if user.is_authenticated %}
+            <p class="text-muted mb-0">
+                {{ product.description }}
+            </p>
+
+        </div>
+
+        <!-- BUTTONS -->
+
+        <div class="d-flex gap-3 flex-wrap mb-5">
+
+            <!-- ADD TO CART -->
 
             <form method="POST"
-                  action="{% url 'add_review' product.id %}"
-                  class="mb-5">
+                  action="{% url 'add_to_cart' product.id %}">
 
                 {% csrf_token %}
 
-                <div class="mb-3">
-                    <label class="form-label">Rating</label>
-
-                    <select name="rating" class="form-select" required>
-                        <option value="">Choose Rating</option>
-                        <option value="5">⭐⭐⭐⭐⭐</option>
-                        <option value="4">⭐⭐⭐⭐</option>
-                        <option value="3">⭐⭐⭐</option>
-                        <option value="2">⭐⭐</option>
-                        <option value="1">⭐</option>
-                    </select>
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label">Comment</label>
-
-                    <textarea name="comment"
-                              class="form-control"
-                              rows="4"
-                              required></textarea>
-                </div>
-
-                <button class="btn btn-dark">
-                    Submit Review
+                <button class="btn btn-success btn-lg px-4 shadow-sm">
+                    🛒 Add to Cart
                 </button>
 
             </form>
 
-            {% else %}
+            <!-- BUY NOW -->
 
-            <p>
-                <a href="{% url 'login' %}">
-                    Login
-                </a>
-                to write a review.
-            </p>
+            <form method="POST"
+                  action="{% url 'add_to_cart' product.id %}">
 
-            {% endif %}
+                {% csrf_token %}
 
-          {% for review in reviews %}
+                <button class="btn btn-warning btn-lg px-4 shadow-sm">
+                    ⚡ Buy Now
+                </button>
 
-<div class="card mb-3 shadow-sm border-0">
+            </form>
 
-    <div class="card-body">
+            <!-- WISHLIST -->
 
-        <h5>
-            {{ review.user.username }}
+            <form method="POST"
+                  action="{% url 'add_to_wishlist' product.id %}">
+
+                {% csrf_token %}
+
+                <button class="btn btn-outline-danger btn-lg shadow-sm">
+                    ❤️ Wishlist
+                </button>
+
+            </form>
+
+        </div>
+
+        <!-- FEATURES -->
+
+        <div class="row g-3">
+
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm text-center p-3 h-100">
+                    <h3>🚚</h3>
+                    <h6 class="fw-bold">Free Delivery</h6>
+                    <small class="text-muted">
+                        Fast shipping across India
+                    </small>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm text-center p-3 h-100">
+                    <h3>🔁</h3>
+                    <h6 class="fw-bold">7 Days Return</h6>
+                    <small class="text-muted">
+                        Easy replacement policy
+                    </small>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm text-center p-3 h-100">
+                    <h3>🔒</h3>
+                    <h6 class="fw-bold">Secure Payment</h6>
+                    <small class="text-muted">
+                        Razorpay protected checkout
+                    </small>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- REVIEWS SECTION -->
+
+<div class="mt-5">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <h2 class="fw-bold">
+            ⭐ Customer Reviews
+        </h2>
+
+        <h5 class="text-success">
+            {{ average_rating }}/5
         </h5>
 
-        <p class="text-warning">
-            {% for i in "12345" %}
-                {% if forloop.counter <= review.rating %}
-                    ⭐
-                {% endif %}
-            {% endfor %}
+    </div>
+
+    <!-- REVIEW FORM -->
+
+    {% if user.is_authenticated %}
+
+    <div class="card shadow-sm border-0 p-4 mb-5">
+
+        <h5 class="fw-bold mb-4">
+            Write a Review
+        </h5>
+
+        <form method="POST"
+              action="{% url 'add_review' product.id %}">
+
+            {% csrf_token %}
+
+            <div class="mb-3">
+
+                <label class="form-label fw-semibold">
+                    Rating
+                </label>
+
+                <select name="rating"
+                        class="form-select"
+                        required>
+
+                    <option value="">Choose Rating</option>
+                    <option value="5">⭐⭐⭐⭐⭐ Excellent</option>
+                    <option value="4">⭐⭐⭐⭐ Very Good</option>
+                    <option value="3">⭐⭐⭐ Good</option>
+                    <option value="2">⭐⭐ Average</option>
+                    <option value="1">⭐ Poor</option>
+
+                </select>
+
+            </div>
+
+            <div class="mb-4">
+
+                <label class="form-label fw-semibold">
+                    Comment
+                </label>
+
+                <textarea name="comment"
+                          class="form-control"
+                          rows="4"
+                          placeholder="Write your experience..."
+                          required></textarea>
+
+            </div>
+
+            <button class="btn btn-dark px-4">
+                Submit Review
+            </button>
+
+        </form>
+
+    </div>
+
+    {% else %}
+
+    <div class="alert alert-info shadow-sm">
+
+        Please
+        <a href="{% url 'login' %}">
+            login
+        </a>
+        to write a review.
+
+    </div>
+
+    {% endif %}
+
+    <!-- REVIEW LIST -->
+
+    {% for review in reviews %}
+
+    <div class="card border-0 shadow-sm mb-4">
+
+        <div class="card-body p-4">
+
+            <div class="d-flex justify-content-between align-items-center mb-2">
+
+                <h5 class="fw-bold mb-0">
+                    {{ review.user.username }}
+                </h5>
+
+                <small class="text-muted">
+                    {{ review.created_at|date:"M d, Y" }}
+                </small>
+
+            </div>
+
+            <div class="text-warning mb-3">
+
+                {% for i in "12345" %}
+
+                    {% if forloop.counter <= review.rating %}
+                        ⭐
+                    {% endif %}
+
+                {% endfor %}
+
+            </div>
+
+            <p class="text-muted mb-0">
+                {{ review.comment }}
+            </p>
+
+        </div>
+
+    </div>
+
+    {% empty %}
+
+    <div class="card border-0 shadow-sm text-center p-5">
+
+        <h4>No Reviews Yet</h4>
+
+        <p class="text-muted">
+            Be the first person to review this product.
         </p>
 
-        <p>{{ review.comment }}</p>
+    </div>
 
-        <small class="text-muted">
-            {{ review.created_at|date:"M d, Y" }}
-        </small>
+    {% endfor %}
+
+</div>
+
+<!-- RELATED PRODUCTS -->
+
+{% if related_products %}
+
+<div class="mt-5">
+
+    <h2 class="fw-bold mb-4">
+        Related Products
+    </h2>
+
+    <div class="row">
+
+        {% for item in related_products %}
+
+        <div class="col-md-3 mb-4">
+
+            <div class="card h-100 shadow-sm border-0">
+
+                <img src="{{ item.image_url|default:'https://via.placeholder.com/300' }}"
+                     class="card-img-top"
+                     style="height:220px; object-fit:cover;">
+
+                <div class="card-body">
+
+                    <h6 class="fw-bold">
+                        {{ item.name }}
+                    </h6>
+
+                    <p class="text-success fw-bold">
+                        ₹{{ item.price }}
+                    </p>
+
+                    <a href="{% url 'product_detail' item.id %}"
+                       class="btn btn-primary w-100">
+
+                        View Product
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        {% endfor %}
 
     </div>
 
 </div>
 
-{% empty %}
-
-<p>No reviews yet.</p>
-
-{% endfor %}
-    <!-- EXTRA INFO -->
-    <div class="mt-4 text-muted">
-      <p>✔ Free Delivery</p>
-      <p>✔ 7 Days Return Policy</p>
-      <p>✔ Cash on Delivery Available</p>
-    </div>
-
-  </div>
-
-</div>
+{% endif %}
 
 {% endblock %}

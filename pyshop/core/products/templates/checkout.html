@@ -2,74 +2,293 @@
 
 {% block content %}
 
-<h2 class="mb-4 fw-bold">💳 Checkout</h2>
+<div class="container py-5">
 
-<div class="row">
+    <div class="row g-4">
 
-  <!-- LEFT: PAYMENT -->
-  <div class="col-lg-7">
-    <div class="card p-4 shadow-sm">
+        <!-- LEFT SIDE -->
+        <div class="col-lg-7">
 
-      <form method="POST">
-        {% csrf_token %}
+            <div class="card border-0 shadow-lg rounded-4 p-4">
 
-        <h5 class="mb-3">Select Payment Method</h5>
+                <div class="d-flex align-items-center justify-content-between mb-4">
+                    <div>
+                        <h2 class="fw-bold mb-1">💳 Secure Checkout</h2>
+                        <p class="text-muted mb-0">
+                            Complete your purchase securely
+                        </p>
+                    </div>
 
-        <!-- PAYMENT OPTIONS -->
-        <div class="form-check mb-2">
-          <input class="form-check-input" type="radio" name="payment" value="card" checked onclick="toggleFields()">
-          <label class="form-check-label">💳 Card</label>
+                    <span class="badge bg-success p-2">
+                        SSL Secured
+                    </span>
+                </div>
+
+                <form method="POST">
+                    {% csrf_token %}
+
+                    <!-- PAYMENT METHODS -->
+                    <h5 class="fw-bold mb-3">Choose Payment Method</h5>
+
+                    <div class="payment-method active mb-3" onclick="selectPayment('card')">
+                        <input type="radio" name="payment" value="card" checked hidden>
+
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div>
+                                <h6 class="mb-1">💳 Credit / Debit Card</h6>
+                                <small class="text-muted">
+                                    Visa, Mastercard, RuPay
+                                </small>
+                            </div>
+
+                            <i class="bi bi-credit-card fs-3 text-primary"></i>
+                        </div>
+                    </div>
+
+                    <div class="payment-method mb-3" onclick="selectPayment('upi')">
+                        <input type="radio" name="payment" value="upi" hidden>
+
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div>
+                                <h6 class="mb-1">📱 UPI Payment</h6>
+                                <small class="text-muted">
+                                    Google Pay, PhonePe, Paytm
+                                </small>
+                            </div>
+
+                            <i class="bi bi-phone fs-3 text-success"></i>
+                        </div>
+                    </div>
+
+                    <div class="payment-method mb-4" onclick="selectPayment('cod')">
+                        <input type="radio" name="payment" value="cod" hidden>
+
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div>
+                                <h6 class="mb-1">💵 Cash on Delivery</h6>
+                                <small class="text-muted">
+                                    Pay when your order arrives
+                                </small>
+                            </div>
+
+                            <i class="bi bi-cash-stack fs-3 text-warning"></i>
+                        </div>
+                    </div>
+
+                    <!-- CARD SECTION -->
+                    <div id="cardFields">
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">
+                                Card Holder Name
+                            </label>
+
+                            <input
+                                type="text"
+                                class="form-control form-control-lg"
+                                placeholder="Raj Tiwari"
+                            >
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">
+                                Card Number
+                            </label>
+
+                            <input
+                                type="text"
+                                class="form-control form-control-lg"
+                                placeholder="1234 5678 9012 3456"
+                            >
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-semibold">
+                                    Expiry Date
+                                </label>
+
+                                <input
+                                    type="text"
+                                    class="form-control form-control-lg"
+                                    placeholder="MM/YY"
+                                >
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-semibold">
+                                    CVV
+                                </label>
+
+                                <input
+                                    type="password"
+                                    class="form-control form-control-lg"
+                                    placeholder="123"
+                                >
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- UPI -->
+                    <div id="upiField" style="display:none;">
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">
+                                Enter UPI ID
+                            </label>
+
+                            <input
+                                type="text"
+                                class="form-control form-control-lg"
+                                placeholder="example@upi"
+                            >
+                        </div>
+
+                    </div>
+
+                    <!-- COD -->
+                    <div id="codField" style="display:none;">
+
+                        <div class="alert alert-warning rounded-4">
+                            💵 You will pay after the product is delivered.
+                        </div>
+
+                    </div>
+
+                    <button class="btn btn-dark btn-lg w-100 rounded-4 mt-3 py-3">
+                        🔒 Place Secure Order
+                    </button>
+
+                </form>
+
+            </div>
+
         </div>
 
-        <div class="form-check mb-2">
-          <input class="form-check-input" type="radio" name="payment" value="upi" onclick="toggleFields()">
-          <label class="form-check-label">📱 UPI</label>
+        <!-- RIGHT SIDE -->
+        <div class="col-lg-5">
+
+            <div class="card border-0 shadow-lg rounded-4 p-4 sticky-top">
+
+                <h4 class="fw-bold mb-4">
+                    🛍 Order Summary
+                </h4>
+
+                <div class="d-flex justify-content-between mb-3">
+                    <span>Subtotal</span>
+                    <strong>₹{{ total }}</strong>
+                </div>
+
+                <div class="d-flex justify-content-between mb-3">
+                    <span>Shipping</span>
+                    <strong class="text-success">FREE</strong>
+                </div>
+
+                <div class="d-flex justify-content-between mb-3">
+                    <span>Tax</span>
+                    <strong>Included</strong>
+                </div>
+
+                <hr>
+
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4 class="fw-bold mb-0">Total</h4>
+                    <h3 class="fw-bold text-success mb-0">
+                        ₹{{ total }}
+                    </h3>
+                </div>
+
+                <!-- FEATURES -->
+                <div class="bg-light rounded-4 p-3">
+
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="bi bi-shield-check text-success me-2"></i>
+                        <small>100% Secure Payments</small>
+                    </div>
+
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="bi bi-arrow-repeat text-primary me-2"></i>
+                        <small>Easy Returns Available</small>
+                    </div>
+
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-truck text-warning me-2"></i>
+                        <small>Fast Delivery Across India</small>
+                    </div>
+
+                </div>
+
+                <a href="{% url 'cart' %}" class="btn btn-outline-dark mt-4 rounded-4">
+                    ⬅ Back to Cart
+                </a>
+
+            </div>
+
         </div>
-
-        <div class="form-check mb-3">
-          <input class="form-check-input" type="radio" name="payment" value="cod" onclick="toggleFields()">
-          <label class="form-check-label">💵 Cash on Delivery</label>
-        </div>
-
-        <!-- CARD FIELDS -->
-        <div id="cardFields">
-          <input class="form-control mb-2" placeholder="Card Number">
-          <input class="form-control mb-2" placeholder="CVV">
-          <input class="form-control mb-2" placeholder="Expiry (MM/YY)">
-        </div>
-
-        <!-- UPI -->
-        <div id="upiField" style="display:none;">
-          <input class="form-control mb-2" placeholder="Enter UPI ID">
-        </div>
-
-        <button class="btn btn-success w-100 mt-3">Place Order</button>
-      </form>
-
-      <a href="{% url 'cart' %}" class="btn btn-link mt-3">⬅ Back to Cart</a>
 
     </div>
-  </div>
-
-  <!-- RIGHT: SUMMARY -->
-  <div class="col-lg-5">
-    <div class="card p-4 shadow-sm">
-      <h5 class="fw-bold">Order Summary</h5>
-      <hr>
-      <h4 class="text-success">₹{{ total }}</h4>
-      <p class="text-muted">Including all taxes</p>
-    </div>
-  </div>
 
 </div>
 
-<script>
-function toggleFields() {
-    const payment = document.querySelector('input[name="payment"]:checked').value;
+<style>
 
-    document.getElementById('cardFields').style.display = (payment === 'card') ? 'block' : 'none';
-    document.getElementById('upiField').style.display = (payment === 'upi') ? 'block' : 'none';
+.payment-method {
+    border: 2px solid #eaeaea;
+    border-radius: 18px;
+    padding: 18px;
+    cursor: pointer;
+    transition: 0.3s;
+    background: white;
 }
+
+.payment-method:hover {
+    border-color: #000;
+    transform: translateY(-2px);
+}
+
+.payment-method.active {
+    border-color: #000;
+    background: #f8f9fa;
+}
+
+.form-control {
+    border-radius: 14px;
+    padding: 14px;
+}
+
+.card {
+    overflow: hidden;
+}
+
+body {
+    background: #f4f6f9;
+}
+
+</style>
+
+<script>
+
+function selectPayment(method) {
+
+    document.querySelectorAll('.payment-method').forEach(el => {
+        el.classList.remove('active');
+    });
+
+    event.currentTarget.classList.add('active');
+
+    document.querySelector(`input[value="${method}"]`).checked = true;
+
+    document.getElementById('cardFields').style.display =
+        method === 'card' ? 'block' : 'none';
+
+    document.getElementById('upiField').style.display =
+        method === 'upi' ? 'block' : 'none';
+
+    document.getElementById('codField').style.display =
+        method === 'cod' ? 'block' : 'none';
+}
+
 </script>
 
 {% endblock %}
