@@ -1,354 +1,168 @@
 {% extends 'base.html' %}
 
+{% block title %}{{ product.name }} - PyShop{% endblock %}
+
 {% block content %}
-
-<div class="row g-5">
-
-    <!-- PRODUCT IMAGE -->
-
+<section class="row g-4 align-items-start">
     <div class="col-lg-5">
-
-        <div class="card shadow-lg border-0 overflow-hidden">
-
-            <img src="{{ product.image_url|default:'https://via.placeholder.com/500' }}"
-                 class="img-fluid"
-                 style="height:500px; object-fit:cover;">
-
+        <div class="panel overflow-hidden">
+            <img src="{{ product.image_url|default:'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1000&q=80' }}" class="w-100" style="height: 560px; object-fit: cover;" alt="{{ product.name }}">
         </div>
-
     </div>
-
-    <!-- PRODUCT DETAILS -->
 
     <div class="col-lg-7">
+        <span class="kicker"><i class="bi bi-box-seam"></i> {{ product.category.name|default:"General" }}</span>
+        <h1 class="section-title">{{ product.name }}</h1>
+        <p class="section-copy mt-3">{{ product.description }}</p>
 
-        <span class="badge bg-dark mb-3 px-3 py-2">
-            {{ product.category.name }}
-        </span>
-
-        <h1 class="fw-bold mb-3">
-            {{ product.name }}
-        </h1>
-
-        <div class="d-flex align-items-center gap-3 mb-3">
-
-            <h2 class="text-success fw-bold mb-0">
-                ₹{{ product.price }}
-            </h2>
-
-            <span class="badge bg-success">
-                In Stock
-            </span>
-
+        <div class="panel p-4 my-4">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+                <div>
+                    <p class="text-muted mb-1">Current price</p>
+                    <div class="price fs-2">Rs. {{ product.price }}</div>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    {% if reviews %}
+                        <span class="text-warning fs-5">
+                            <i class="bi bi-star-fill"></i>
+                            <i class="bi bi-star-fill"></i>
+                            <i class="bi bi-star-fill"></i>
+                            <i class="bi bi-star-fill"></i>
+                            <i class="bi bi-star-half"></i>
+                        </span>
+                        <span class="text-muted">{{ average_rating }}/5 from {{ reviews.count }} reviews</span>
+                    {% else %}
+                        <span class="soft-badge"><i class="bi bi-star"></i> No reviews yet</span>
+                    {% endif %}
+                </div>
+            </div>
         </div>
 
-        <!-- RATING -->
-
-        <div class="mb-4">
-
-            <span class="text-warning fs-5">
-                ⭐⭐⭐⭐⭐
-            </span>
-
-            <span class="text-muted">
-                ({{ reviews.count }} Reviews)
-            </span>
-
-        </div>
-
-        <!-- DESCRIPTION -->
-
-        <div class="card border-0 shadow-sm p-4 mb-4 bg-light">
-
-            <h5 class="fw-bold mb-3">
-                Product Description
-            </h5>
-
-            <p class="text-muted mb-0">
-                {{ product.description }}
-            </p>
-
-        </div>
-
-        <!-- BUTTONS -->
-
-        <div class="d-flex gap-3 flex-wrap mb-5">
-
-            <!-- ADD TO CART -->
-
-            <form method="POST"
-                  action="{% url 'add_to_cart' product.id %}">
-
+        <div class="d-flex flex-wrap gap-2 mb-4">
+            <form method="POST" action="{% url 'add_to_cart' product.id %}">
                 {% csrf_token %}
-
-                <button class="btn btn-success btn-lg px-4 shadow-sm">
-                    🛒 Add to Cart
-                </button>
-
+                <button class="btn btn-success btn-lg"><i class="bi bi-bag-plus"></i> Add to cart</button>
             </form>
-
-            <!-- BUY NOW -->
-
-            <form method="POST"
-                  action="{% url 'add_to_cart' product.id %}">
-
+            <form method="POST" action="{% url 'add_to_cart' product.id %}">
                 {% csrf_token %}
-
-                <button class="btn btn-warning btn-lg px-4 shadow-sm">
-                    ⚡ Buy Now
-                </button>
-
+                <button class="btn btn-primary btn-lg"><i class="bi bi-lightning-charge"></i> Buy now</button>
             </form>
-
-            <!-- WISHLIST -->
-
-            <form method="POST"
-                  action="{% url 'add_to_wishlist' product.id %}">
-
+            <form method="POST" action="{% url 'add_to_wishlist' product.id %}">
                 {% csrf_token %}
-
-                <button class="btn btn-outline-danger btn-lg shadow-sm">
-                    ❤️ Wishlist
-                </button>
-
+                <button class="btn btn-outline-danger btn-lg"><i class="bi bi-heart"></i> Wishlist</button>
             </form>
-
         </div>
-
-        <!-- FEATURES -->
 
         <div class="row g-3">
-
             <div class="col-md-4">
-                <div class="card border-0 shadow-sm text-center p-3 h-100">
-                    <h3>🚚</h3>
-                    <h6 class="fw-bold">Free Delivery</h6>
-                    <small class="text-muted">
-                        Fast shipping across India
-                    </small>
+                <div class="metric-card h-100">
+                    <i class="bi bi-truck fs-3 text-primary"></i>
+                    <strong class="fs-6 mt-2">Fast delivery</strong>
+                    <span class="text-muted small">Pan-India shipping simulation</span>
                 </div>
             </div>
-
             <div class="col-md-4">
-                <div class="card border-0 shadow-sm text-center p-3 h-100">
-                    <h3>🔁</h3>
-                    <h6 class="fw-bold">7 Days Return</h6>
-                    <small class="text-muted">
-                        Easy replacement policy
-                    </small>
+                <div class="metric-card h-100">
+                    <i class="bi bi-arrow-repeat fs-3 text-success"></i>
+                    <strong class="fs-6 mt-2">7 day returns</strong>
+                    <span class="text-muted small">Simple replacement workflow</span>
                 </div>
             </div>
-
             <div class="col-md-4">
-                <div class="card border-0 shadow-sm text-center p-3 h-100">
-                    <h3>🔒</h3>
-                    <h6 class="fw-bold">Secure Payment</h6>
-                    <small class="text-muted">
-                        Razorpay protected checkout
-                    </small>
+                <div class="metric-card h-100">
+                    <i class="bi bi-shield-check fs-3 text-info"></i>
+                    <strong class="fs-6 mt-2">Secure payment</strong>
+                    <span class="text-muted small">Razorpay plus demo mode</span>
                 </div>
             </div>
-
         </div>
-
     </div>
+</section>
 
-</div>
-
-<!-- REVIEWS SECTION -->
-
-<div class="mt-5">
-
-    <div class="d-flex justify-content-between align-items-center mb-4">
-
-        <h2 class="fw-bold">
-            ⭐ Customer Reviews
-        </h2>
-
-        <h5 class="text-success">
-            {{ average_rating }}/5
-        </h5>
-
-    </div>
-
-    <!-- REVIEW FORM -->
-
-    {% if user.is_authenticated %}
-
-    <div class="card shadow-sm border-0 p-4 mb-5">
-
-        <h5 class="fw-bold mb-4">
-            Write a Review
-        </h5>
-
-        <form method="POST"
-              action="{% url 'add_review' product.id %}">
-
-            {% csrf_token %}
-
-            <div class="mb-3">
-
-                <label class="form-label fw-semibold">
-                    Rating
-                </label>
-
-                <select name="rating"
-                        class="form-select"
-                        required>
-
-                    <option value="">Choose Rating</option>
-                    <option value="5">⭐⭐⭐⭐⭐ Excellent</option>
-                    <option value="4">⭐⭐⭐⭐ Very Good</option>
-                    <option value="3">⭐⭐⭐ Good</option>
-                    <option value="2">⭐⭐ Average</option>
-                    <option value="1">⭐ Poor</option>
-
-                </select>
-
-            </div>
-
-            <div class="mb-4">
-
-                <label class="form-label fw-semibold">
-                    Comment
-                </label>
-
-                <textarea name="comment"
-                          class="form-control"
-                          rows="4"
-                          placeholder="Write your experience..."
-                          required></textarea>
-
-            </div>
-
-            <button class="btn btn-dark px-4">
-                Submit Review
-            </button>
-
-        </form>
-
-    </div>
-
-    {% else %}
-
-    <div class="alert alert-info shadow-sm">
-
-        Please
-        <a href="{% url 'login' %}">
-            login
-        </a>
-        to write a review.
-
-    </div>
-
-    {% endif %}
-
-    <!-- REVIEW LIST -->
-
-    {% for review in reviews %}
-
-    <div class="card border-0 shadow-sm mb-4">
-
-        <div class="card-body p-4">
-
-            <div class="d-flex justify-content-between align-items-center mb-2">
-
-                <h5 class="fw-bold mb-0">
-                    {{ review.user.username }}
-                </h5>
-
-                <small class="text-muted">
-                    {{ review.created_at|date:"M d, Y" }}
-                </small>
-
-            </div>
-
-            <div class="text-warning mb-3">
-
-                {% for i in "12345" %}
-
-                    {% if forloop.counter <= review.rating %}
-                        ⭐
-                    {% endif %}
-
-                {% endfor %}
-
-            </div>
-
-            <p class="text-muted mb-0">
-                {{ review.comment }}
-            </p>
-
+<section class="row g-4 mt-5">
+    <div class="col-lg-5">
+        <div class="panel p-4">
+            <h3 class="fw-black mb-3"><i class="bi bi-chat-square-heart"></i> Write a review</h3>
+            {% if user.is_authenticated %}
+                <form method="POST" action="{% url 'add_review' product.id %}">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Rating</label>
+                        <select name="rating" class="form-select" required>
+                            <option value="">Choose rating</option>
+                            <option value="5">5 - Excellent</option>
+                            <option value="4">4 - Very good</option>
+                            <option value="3">3 - Good</option>
+                            <option value="2">2 - Average</option>
+                            <option value="1">1 - Poor</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Comment</label>
+                        <textarea name="comment" class="form-control" rows="4" placeholder="Tell future buyers what stood out..." required></textarea>
+                    </div>
+                    <button class="btn btn-dark w-100">Submit review</button>
+                </form>
+            {% else %}
+                <p class="text-muted">Login to share a verified customer review.</p>
+                <a class="btn btn-primary" href="{% url 'login' %}">Login to review</a>
+            {% endif %}
         </div>
-
     </div>
 
-    {% empty %}
-
-    <div class="card border-0 shadow-sm text-center p-5">
-
-        <h4>No Reviews Yet</h4>
-
-        <p class="text-muted">
-            Be the first person to review this product.
-        </p>
-
+    <div class="col-lg-7">
+        <div class="panel p-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h3 class="fw-black mb-0">Customer reviews</h3>
+                <span class="soft-badge">{{ reviews.count }} total</span>
+            </div>
+            {% for review in reviews %}
+                <div class="border-bottom py-3">
+                    <div class="d-flex justify-content-between gap-3">
+                        <strong>{{ review.user.username }}</strong>
+                        <small class="text-muted">{{ review.created_at|date:"M d, Y" }}</small>
+                    </div>
+                    <div class="text-warning my-1">
+                        {% for i in "12345" %}
+                            {% if forloop.counter <= review.rating %}<i class="bi bi-star-fill"></i>{% endif %}
+                        {% endfor %}
+                    </div>
+                    <p class="text-muted mb-0">{{ review.comment }}</p>
+                </div>
+            {% empty %}
+                <div class="text-center py-5">
+                    <i class="bi bi-chat-square-text display-4 text-primary"></i>
+                    <h4 class="fw-black mt-3">No reviews yet</h4>
+                    <p class="text-muted">Be the first buyer to leave product feedback.</p>
+                </div>
+            {% endfor %}
+        </div>
     </div>
-
-    {% endfor %}
-
-</div>
-
-<!-- RELATED PRODUCTS -->
+</section>
 
 {% if related_products %}
-
-<div class="mt-5">
-
-    <h2 class="fw-bold mb-4">
-        Related Products
-    </h2>
-
-    <div class="row">
-
-        {% for item in related_products %}
-
-        <div class="col-md-3 mb-4">
-
-            <div class="card h-100 shadow-sm border-0">
-
-                <img src="{{ item.image_url|default:'https://via.placeholder.com/300' }}"
-                     class="card-img-top"
-                     style="height:220px; object-fit:cover;">
-
-                <div class="card-body">
-
-                    <h6 class="fw-bold">
-                        {{ item.name }}
-                    </h6>
-
-                    <p class="text-success fw-bold">
-                        ₹{{ item.price }}
-                    </p>
-
-                    <a href="{% url 'product_detail' item.id %}"
-                       class="btn btn-primary w-100">
-
-                        View Product
-                    </a>
-
-                </div>
-
-            </div>
-
+<section class="mt-5">
+    <div class="d-flex justify-content-between align-items-end mb-3">
+        <div>
+            <span class="kicker mb-2"><i class="bi bi-layers"></i> Related picks</span>
+            <h2 class="fw-black mb-0">More from this category</h2>
         </div>
-
-        {% endfor %}
-
+        <a href="{% url 'product_list' %}" class="btn btn-outline-dark">View catalog</a>
     </div>
-
-</div>
-
+    <div class="row g-4">
+        {% for item in related_products %}
+            <div class="col-md-6 col-lg-3">
+                <article class="product-card">
+                    <img src="{{ item.image_url|default:'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=800&q=80' }}" class="product-image" style="height: 190px;" alt="{{ item.name }}">
+                    <div class="p-3">
+                        <h6 class="fw-black">{{ item.name }}</h6>
+                        <p class="price mb-3">Rs. {{ item.price }}</p>
+                        <a href="{% url 'product_detail' item.id %}" class="btn btn-primary w-100">View product</a>
+                    </div>
+                </article>
+            </div>
+        {% endfor %}
+    </div>
+</section>
 {% endif %}
-
 {% endblock %}

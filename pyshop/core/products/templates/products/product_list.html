@@ -1,399 +1,153 @@
 {% extends 'base.html' %}
 
+{% block title %}PyShop - Curated Storefront{% endblock %}
+
 {% block content %}
-
-<style>
-
-.product-card {
-    transition: 0.3s;
-    border-radius: 18px;
-    overflow: hidden;
-}
-
-.product-card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 15px 30px rgba(0,0,0,0.12);
-}
-
-.product-image {
-    height: 240px;
-    object-fit: cover;
-    transition: 0.4s;
-}
-
-.product-card:hover .product-image {
-    transform: scale(1.05);
-}
-
-.filter-card {
-    border-radius: 18px;
-}
-
-.price-text {
-    font-size: 1.3rem;
-    font-weight: bold;
-    color: #16a34a;
-}
-
-.category-badge {
-    background: #f1f5f9;
-    color: #555;
-    padding: 6px 12px;
-    border-radius: 20px;
-    font-size: 12px;
-}
-
-.hero-banner {
-    background: linear-gradient(135deg, #0f172a, #2563eb);
-    border-radius: 24px;
-    color: white;
-    padding: 50px;
-    margin-bottom: 40px;
-}
-
-.hero-title {
-    font-size: 2.7rem;
-    font-weight: bold;
-}
-
-.hero-subtitle {
-    opacity: 0.9;
-    font-size: 1.1rem;
-}
-
-.action-btn {
-    border-radius: 10px;
-}
-
-</style>
-
-<!-- HERO SECTION -->
-
-<div class="hero-banner shadow-lg">
-
-    <div class="row align-items-center">
-
+<section class="panel p-4 p-lg-5 mb-4 overflow-hidden">
+    <div class="row align-items-center g-4">
         <div class="col-lg-7">
-
-            <h1 class="hero-title">
-                Discover Amazing Products
-            </h1>
-
-            <p class="hero-subtitle mt-3">
-                Shop premium products with fast delivery,
-                secure payments and modern shopping experience.
+            <span class="kicker"><i class="bi bi-stars"></i> Interview-ready Django commerce</span>
+            <h1 class="section-title">A refined marketplace built end to end.</h1>
+            <p class="section-copy mt-3 mb-4">
+                Browse curated products, save favorites, manage cart quantities, checkout securely,
+                review orders, download invoices, and track delivery from a single polished Django app.
             </p>
-
+            <div class="d-flex flex-wrap gap-2">
+                <a class="btn btn-primary btn-lg" href="#catalog"><i class="bi bi-grid"></i> Explore catalog</a>
+                {% if user.is_authenticated %}
+                    <a class="btn btn-outline-dark btn-lg" href="{% url 'cart' %}"><i class="bi bi-bag"></i> View cart</a>
+                {% else %}
+                    <a class="btn btn-outline-dark btn-lg" href="{% url 'signup' %}"><i class="bi bi-person-plus"></i> Start shopping</a>
+                {% endif %}
+            </div>
         </div>
-
-        <div class="col-lg-5 text-center">
-
-            <h1 style="font-size: 120px;">
-                🛍️
-            </h1>
-
+        <div class="col-lg-5">
+            <div class="row g-3">
+                <div class="col-6">
+                    <div class="metric-card">
+                        <strong>{{ products|length }}</strong>
+                        <span class="text-muted">products visible</span>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="metric-card">
+                        <strong>{{ categories|length }}</strong>
+                        <span class="text-muted">categories</span>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="panel p-4 text-white" style="background: linear-gradient(135deg, #0b1020, #20325f);">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <p class="mb-1 opacity-75">Store promise</p>
+                                <h3 class="fw-black mb-3">Fast delivery. Real reviews. Secure checkout.</h3>
+                                <span class="soft-badge bg-white text-dark"><i class="bi bi-credit-card"></i> Razorpay + demo mode</span>
+                            </div>
+                            <i class="bi bi-bag-heart-fill display-3 text-info"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-
     </div>
+</section>
 
-</div>
-
-<div class="row g-4">
-
-    <!-- SIDEBAR -->
-
-    <div class="col-lg-3">
-
-        <div class="card filter-card shadow-sm border-0 p-4 sticky-top"
-             style="top: 20px;">
-
-            <h4 class="fw-bold mb-4">
-                🔍 Filters
-            </h4>
-
+<section class="row g-4" id="catalog">
+    <aside class="col-lg-3">
+        <div class="panel p-4 position-sticky" style="top: 96px;">
+            <h4 class="fw-bold mb-1">Smart filters</h4>
+            <p class="text-muted small mb-4">Narrow the catalog by search, category, and budget.</p>
             <form method="GET">
-
-                <!-- SEARCH -->
-
-                <div class="mb-4">
-
-                    <label class="form-label fw-semibold">
-                        Search
-                    </label>
-
-                    <input type="text"
-                           name="q"
-                           value="{{ request.GET.q }}"
-                           class="form-control"
-                           placeholder="Search products...">
-
-                </div>
-
-                <!-- CATEGORY -->
-
-                <div class="mb-4">
-
-                    <label class="form-label fw-semibold">
-                        Category
-                    </label>
-
-                    <select name="category"
-                            class="form-select">
-
-                        <option value="">
-                            All Categories
-                        </option>
-
-                        {% for cat in categories %}
-
-                        <option value="{{ cat.id }}"
-                            {% if request.GET.category == cat.id|stringformat:"s" %}
-                                selected
-                            {% endif %}>
-
-                            {{ cat.name }}
-
-                        </option>
-
-                        {% endfor %}
-
-                    </select>
-
-                </div>
-
-                <!-- PRICE -->
-
                 <div class="mb-3">
-
-                    <label class="form-label fw-semibold">
-                        Min Price
-                    </label>
-
-                    <input type="number"
-                           name="min_price"
-                           value="{{ request.GET.min_price }}"
-                           class="form-control">
-
+                    <label class="form-label fw-bold">Search</label>
+                    <input type="text" name="q" value="{{ request.GET.q }}" class="form-control" placeholder="Keyboard, camera, watch...">
                 </div>
-
-                <div class="mb-4">
-
-                    <label class="form-label fw-semibold">
-                        Max Price
-                    </label>
-
-                    <input type="number"
-                           name="max_price"
-                           value="{{ request.GET.max_price }}"
-                           class="form-control">
-
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Category</label>
+                    <select name="category" class="form-select">
+                        <option value="">All categories</option>
+                        {% for cat in categories %}
+                            <option value="{{ cat.id }}" {% if request.GET.category == cat.id|stringformat:"s" %}selected{% endif %}>{{ cat.name }}</option>
+                        {% endfor %}
+                    </select>
                 </div>
-
-                <button class="btn btn-primary w-100 mb-2 action-btn">
-                    Apply Filters
-                </button>
-
-                <a href="/"
-                   class="btn btn-outline-dark w-100 action-btn">
-
-                    Reset
-
-                </a>
-
+                <div class="row g-2">
+                    <div class="col-6">
+                        <label class="form-label fw-bold">Min</label>
+                        <input type="number" name="min_price" value="{{ request.GET.min_price }}" class="form-control" placeholder="0">
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label fw-bold">Max</label>
+                        <input type="number" name="max_price" value="{{ request.GET.max_price }}" class="form-control" placeholder="50000">
+                    </div>
+                </div>
+                <button class="btn btn-primary w-100 mt-4">Apply filters</button>
+                <a href="{% url 'product_list' %}" class="btn btn-outline-dark w-100 mt-2">Reset catalog</a>
             </form>
-
         </div>
-
-    </div>
-
-    <!-- PRODUCTS -->
+    </aside>
 
     <div class="col-lg-9">
-
-        <!-- TOP BAR -->
-
-        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
-
+        <div class="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-3">
             <div>
-
-                <h2 class="fw-bold mb-1">
-                    Trending Products
-                </h2>
-
-                <p class="text-muted mb-0">
-                    {{ products|length }} Products Available
-                </p>
-
+                <span class="kicker mb-2"><i class="bi bi-lightning-charge"></i> Live catalog</span>
+                <h2 class="fw-black mb-1">Featured products</h2>
+                <p class="text-muted mb-0">{{ products|length }} products match your current view.</p>
             </div>
-
-            <div>
-
-                <span class="badge bg-dark px-3 py-2">
-                    Fast Delivery 🚚
-                </span>
-
-            </div>
-
+            <span class="soft-badge"><i class="bi bi-truck"></i> Free shipping on demo orders</span>
         </div>
 
-        <!-- PRODUCT GRID -->
-
-        <div class="row">
-
-            {% if products %}
-
-                {% for product in products %}
-
-                <div class="col-lg-4 col-md-6 mb-4">
-
-                    <div class="card product-card border-0 h-100">
-
-                        <!-- IMAGE -->
-
-                        <div class="overflow-hidden position-relative">
-
-                            <img src="{{ product.image_url|default:'https://via.placeholder.com/400' }}"
-                                 class="card-img-top product-image">
-
-                            <span class="badge bg-success position-absolute top-0 end-0 m-3">
-                                New
-                            </span>
-
+        <div class="row g-4">
+            {% for product in products %}
+                <div class="col-md-6 col-xl-4">
+                    <article class="product-card">
+                        <div class="position-relative">
+                            <img src="{{ product.image_url|default:'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=900&q=80' }}" class="product-image" alt="{{ product.name }}">
+                            <span class="soft-badge position-absolute top-0 start-0 m-3 bg-white"><i class="bi bi-gem"></i> Curated</span>
                         </div>
-
-                        <!-- BODY -->
-
-                        <div class="card-body d-flex flex-column p-4">
-
-                            <div class="mb-2">
-
-                                <span class="category-badge">
-
-                                    {{ product.category.name|default:"Uncategorized" }}
-
-                                </span>
-
+                        <div class="p-4 d-flex flex-column h-100">
+                            <div class="d-flex justify-content-between gap-2 mb-2">
+                                <span class="soft-badge">{{ product.category.name|default:"General" }}</span>
+                                <span class="text-warning"><i class="bi bi-star-fill"></i> 4.8</span>
                             </div>
-
-                            <h5 class="fw-bold mt-2">
-
-                                {{ product.name }}
-
-                            </h5>
-
-                            <p class="text-muted small flex-grow-1">
-
-                                Premium quality product with modern design.
-
-                            </p>
-
-                            <div class="price-text mb-3">
-
-                                ₹{{ product.price }}
-
+                            <h5 class="fw-black mb-2">{{ product.name }}</h5>
+                            <p class="text-muted small flex-grow-1">{{ product.description|truncatechars:92 }}</p>
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <span class="price">Rs. {{ product.price }}</span>
+                                <span class="small text-success fw-bold"><i class="bi bi-check-circle"></i> In stock</span>
                             </div>
-
-                            <!-- BUTTONS -->
-
-                            <div class="d-flex gap-2 flex-wrap">
-
-                                <a href="{% url 'product_detail' product.id %}"
-                                   class="btn btn-outline-primary btn-sm flex-grow-1 action-btn">
-
-                                    View
-
-                                </a>
-
-                                <!-- CART -->
-
-                                <form method="POST"
-                                      action="{% url 'add_to_cart' product.id %}">
-
+                            <div class="d-flex gap-2">
+                                <a href="{% url 'product_detail' product.id %}" class="btn btn-outline-dark flex-fill">Details</a>
+                                <form method="POST" action="{% url 'add_to_cart' product.id %}">
                                     {% csrf_token %}
-
-                                    <button class="btn btn-success btn-sm action-btn">
-                                        🛒
-                                    </button>
-
+                                    <button class="btn btn-success" aria-label="Add {{ product.name }} to cart"><i class="bi bi-bag-plus"></i></button>
                                 </form>
-
-                                <!-- WISHLIST -->
-
                                 {% if product.id in wishlist_items %}
-
-                                <form method="POST"
-                                      action="{% url 'remove_from_wishlist' product.id %}">
-
-                                    {% csrf_token %}
-
-                                    <button class="btn btn-danger btn-sm action-btn">
-                                        ❤️
-                                    </button>
-
-                                </form>
-
+                                    <form method="POST" action="{% url 'remove_from_wishlist' product.id %}">
+                                        {% csrf_token %}
+                                        <button class="btn btn-danger" aria-label="Remove {{ product.name }} from wishlist"><i class="bi bi-heart-fill"></i></button>
+                                    </form>
                                 {% else %}
-
-                                <form method="POST"
-                                      action="{% url 'add_to_wishlist' product.id %}">
-
-                                    {% csrf_token %}
-
-                                    <button class="btn btn-outline-danger btn-sm action-btn">
-                                        🤍
-                                    </button>
-
-                                </form>
-
+                                    <form method="POST" action="{% url 'add_to_wishlist' product.id %}">
+                                        {% csrf_token %}
+                                        <button class="btn btn-outline-danger" aria-label="Add {{ product.name }} to wishlist"><i class="bi bi-heart"></i></button>
+                                    </form>
                                 {% endif %}
-
                             </div>
-
                         </div>
-
+                    </article>
+                </div>
+            {% empty %}
+                <div class="col-12">
+                    <div class="panel p-5 text-center">
+                        <i class="bi bi-search display-3 text-primary"></i>
+                        <h3 class="fw-black mt-3">No products found</h3>
+                        <p class="text-muted">Try a different search term or reset your filters.</p>
+                        <a href="{% url 'product_list' %}" class="btn btn-primary">Browse all products</a>
                     </div>
-
                 </div>
-
-                {% endfor %}
-
-            {% else %}
-
-            <!-- EMPTY STATE -->
-
-            <div class="text-center py-5">
-
-                <div class="card border-0 shadow-sm p-5">
-
-                    <h1 style="font-size: 80px;">
-                        😔
-                    </h1>
-
-                    <h3 class="fw-bold mt-3">
-                        No Products Found
-                    </h3>
-
-                    <p class="text-muted">
-                        Try changing filters or browse all products.
-                    </p>
-
-                    <a href="/"
-                       class="btn btn-primary px-4">
-
-                        Browse All
-
-                    </a>
-
-                </div>
-
-            </div>
-
-            {% endif %}
-
+            {% endfor %}
         </div>
-
     </div>
-
-</div>
-
+</section>
 {% endblock %}

@@ -1,257 +1,90 @@
 {% extends 'base.html' %}
 
+{% block title %}Shopping Cart - PyShop{% endblock %}
+
 {% block content %}
-
-<div class="d-flex justify-content-between align-items-center mb-4">
-
+<div class="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-4">
     <div>
-        <h2 class="fw-bold mb-1">🛒 Shopping Cart</h2>
-        <p class="text-muted mb-0">
-            Review your items before checkout
-        </p>
+        <span class="kicker"><i class="bi bi-bag-check"></i> Cart workspace</span>
+        <h1 class="section-title">Review your bag.</h1>
+        <p class="section-copy mb-0">Update quantities, remove items, and move into checkout with a clear order summary.</p>
     </div>
-
-    <a href="/"
-       class="btn btn-outline-dark rounded-3">
-
-        <i class="bi bi-arrow-left"></i>
-        Continue Shopping
-
-    </a>
-
+    <a href="{% url 'product_list' %}" class="btn btn-outline-dark btn-lg"><i class="bi bi-arrow-left"></i> Continue shopping</a>
 </div>
 
 {% if cart_items %}
-
 <div class="row g-4">
-
-    <!-- CART ITEMS -->
     <div class="col-lg-8">
-
         {% for item in cart_items %}
-
-        <div class="card border-0 shadow-lg rounded-4 mb-4 overflow-hidden">
-
-            <div class="card-body p-4">
-
-                <div class="row align-items-center">
-
-                    <!-- IMAGE -->
-                    <div class="col-md-3 text-center">
-
-                        <img src="{{ item.product.image_url|default:'https://via.placeholder.com/300' }}"
-                             class="img-fluid rounded-4"
-                             style="height:160px; width:100%; object-fit:cover;">
-
+            <article class="panel p-3 p-md-4 mb-3">
+                <div class="row g-3 align-items-center">
+                    <div class="col-md-3">
+                        <img src="{{ item.product.image_url|default:'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=700&q=80' }}" class="w-100 rounded-4" style="height: 160px; object-fit: cover;" alt="{{ item.product.name }}">
                     </div>
-
-                    <!-- DETAILS -->
-                    <div class="col-md-5">
-
-                        <h4 class="fw-bold mb-2">
-                            {{ item.product.name }}
-                        </h4>
-
-                        <p class="text-muted mb-3">
-                            Premium quality product from PyShop
-                        </p>
-
-                        <h3 class="text-success fw-bold mb-0">
-                            ₹{{ item.product.price }}
-                        </h3>
-
+                    <div class="col-md-4">
+                        <span class="soft-badge mb-2">{{ item.product.category.name|default:"General" }}</span>
+                        <h4 class="fw-black">{{ item.product.name }}</h4>
+                        <p class="text-muted mb-0">Premium catalog item with secure checkout support.</p>
                     </div>
-
-                    <!-- QUANTITY -->
-                    <div class="col-md-2 text-center">
-
-                        <p class="fw-semibold mb-2">
-                            Quantity
-                        </p>
-
-                        <div class="d-flex justify-content-center align-items-center gap-2">
-
-                            <a href="{% url 'decrease_quantity' item.product.id %}"
-                               class="btn btn-outline-danger rounded-circle">
-
-                                -
-
-                            </a>
-
-                            <span class="fw-bold fs-5">
-                                {{ item.quantity }}
-                            </span>
-
-                            <a href="{% url 'increase_quantity' item.product.id %}"
-                               class="btn btn-outline-success rounded-circle">
-
-                                +
-
-                            </a>
-
+                    <div class="col-md-2">
+                        <p class="text-muted mb-1">Price</p>
+                        <strong>Rs. {{ item.product.price }}</strong>
+                    </div>
+                    <div class="col-md-2">
+                        <p class="text-muted mb-2">Quantity</p>
+                        <div class="d-flex align-items-center gap-2">
+                            <a href="{% url 'decrease_quantity' item.product.id %}" class="btn btn-outline-dark btn-sm" aria-label="Decrease quantity">-</a>
+                            <strong>{{ item.quantity }}</strong>
+                            <a href="{% url 'increase_quantity' item.product.id %}" class="btn btn-outline-dark btn-sm" aria-label="Increase quantity">+</a>
                         </div>
-
                     </div>
-
-                    <!-- REMOVE -->
-                    <div class="col-md-2 text-center">
-
-                        <p class="fw-semibold mb-2">
-                            Total
-                        </p>
-
-                        <h5 class="fw-bold mb-3">
-                            ₹{{ item.total_price }}
-                        </h5>
-
-                        <a href="{% url 'remove_from_cart' item.product.id %}"
-                           class="btn btn-outline-danger rounded-3 btn-sm">
-
+                    <div class="col-md-1 text-md-end">
+                        <p class="text-muted mb-1">Total</p>
+                        <strong>Rs. {{ item.total_price }}</strong>
+                        <a href="{% url 'remove_from_cart' item.product.id %}" class="btn btn-outline-danger btn-sm mt-2" aria-label="Remove item">
                             <i class="bi bi-trash"></i>
-                            Remove
-
                         </a>
-
                     </div>
-
                 </div>
-
-            </div>
-
-        </div>
-
+            </article>
         {% endfor %}
-
     </div>
 
-    <!-- SUMMARY -->
-    <div class="col-lg-4">
-
-        <div class="card border-0 shadow-lg rounded-4 sticky-top"
-             style="top:100px;">
-
-            <div class="card-body p-4">
-
-                <h4 class="fw-bold mb-4">
-                    💳 Order Summary
-                </h4>
-
-                <!-- SUMMARY DETAILS -->
-                <div class="d-flex justify-content-between mb-3">
-
-                    <span class="text-muted">
-                        Subtotal
-                    </span>
-
-                    <span class="fw-semibold">
-                        ₹{{ total_price }}
-                    </span>
-
-                </div>
-
-                <div class="d-flex justify-content-between mb-3">
-
-                    <span class="text-muted">
-                        Shipping
-                    </span>
-
-                    <span class="text-success fw-semibold">
-                        FREE
-                    </span>
-
-                </div>
-
-                <div class="d-flex justify-content-between mb-3">
-
-                    <span class="text-muted">
-                        Taxes
-                    </span>
-
-                    <span>
-                        Included
-                    </span>
-
-                </div>
-
-                <hr>
-
-                <!-- TOTAL -->
-                <div class="d-flex justify-content-between align-items-center mb-4">
-
-                    <h5 class="fw-bold mb-0">
-                        Total
-                    </h5>
-
-                    <h3 class="fw-bold text-success mb-0">
-                        ₹{{ total_price }}
-                    </h3>
-
-                </div>
-
-                <!-- CHECKOUT BUTTON -->
-                <a href="{% url 'checkout' %}"
-                   class="btn btn-primary w-100 py-3 rounded-3 fw-semibold shadow-sm">
-
-                    <i class="bi bi-credit-card"></i>
-                    Proceed to Checkout
-
-                </a>
-
-                <!-- SECURITY -->
-                <div class="text-center mt-4">
-
-                    <small class="text-muted">
-
-                        🔒 Secure Checkout Powered by Razorpay
-
-                    </small>
-
-                </div>
-
+    <aside class="col-lg-4">
+        <div class="panel p-4 position-sticky" style="top: 96px;">
+            <h3 class="fw-black mb-4">Order summary</h3>
+            <div class="d-flex justify-content-between mb-3">
+                <span class="text-muted">Subtotal</span>
+                <strong>Rs. {{ total_price }}</strong>
             </div>
-
+            <div class="d-flex justify-content-between mb-3">
+                <span class="text-muted">Shipping</span>
+                <strong class="text-success">Free</strong>
+            </div>
+            <div class="d-flex justify-content-between mb-3">
+                <span class="text-muted">Taxes</span>
+                <span>Included</span>
+            </div>
+            <hr>
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5 class="fw-black mb-0">Total</h5>
+                <div class="price fs-3">Rs. {{ total_price }}</div>
+            </div>
+            <a href="{% url 'checkout' %}" class="btn btn-primary btn-lg w-100"><i class="bi bi-credit-card"></i> Proceed to checkout</a>
+            <div class="metric-card mt-3">
+                <i class="bi bi-shield-lock text-primary"></i>
+                <strong class="fs-6 mt-2">Protected checkout</strong>
+                <span class="text-muted small">Razorpay integration with local demo-mode fallback.</span>
+            </div>
         </div>
-
-    </div>
-
+    </aside>
 </div>
-
 {% else %}
-
-<!-- EMPTY CART -->
-<div class="row justify-content-center">
-
-    <div class="col-lg-6">
-
-        <div class="card border-0 shadow-lg rounded-4 text-center p-5">
-
-            <div class="display-1 mb-4">
-                🛒
-            </div>
-
-            <h2 class="fw-bold mb-3">
-                Your Cart is Empty
-            </h2>
-
-            <p class="text-muted mb-4">
-                Looks like you haven't added anything yet.
-                Start exploring our amazing products now.
-            </p>
-
-            <a href="/"
-               class="btn btn-primary btn-lg rounded-3 px-4">
-
-                <i class="bi bi-bag"></i>
-                Start Shopping
-
-            </a>
-
-        </div>
-
-    </div>
-
+<div class="panel p-5 text-center">
+    <i class="bi bi-bag-x display-2 text-primary"></i>
+    <h2 class="fw-black mt-3">Your cart is empty</h2>
+    <p class="text-muted">Start with a curated product and build your order.</p>
+    <a href="{% url 'product_list' %}" class="btn btn-primary btn-lg">Browse products</a>
 </div>
-
 {% endif %}
-
 {% endblock %}

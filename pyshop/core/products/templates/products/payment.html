@@ -1,134 +1,99 @@
 {% extends 'base.html' %}
 
+{% block title %}Checkout - PyShop{% endblock %}
+
 {% block content %}
+<section class="row justify-content-center">
+    <div class="col-lg-7">
+        <div class="panel p-4 p-lg-5">
+            <span class="kicker"><i class="bi bi-shield-lock"></i> Secure checkout</span>
+            <h1 class="section-title">Complete your order.</h1>
+            <p class="section-copy mt-3">
+                {% if demo_mode %}
+                    Razorpay keys are not configured, so PyShop is running in demo checkout mode.
+                    This lets reviewers experience the full order flow safely.
+                {% else %}
+                    Payment is processed through Razorpay test mode with server-side signature verification.
+                {% endif %}
+            </p>
 
-<div class="row justify-content-center">
-
-    <div class="col-lg-6">
-
-        <div class="card shadow-lg p-5 glass">
-
-            <div class="text-center">
-
-                <h2 class="fw-bold mb-3">
-                    🔐 Secure Checkout
-                </h2>
-
-                <p class="text-muted">
-                    Fast • Secure • Trusted Payments
-                </p>
-
-                <div class="display-5 fw-bold text-success my-4">
-                    ₹{{ total }}
+            <div class="panel p-4 my-4 bg-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="text-muted">Amount due</span>
+                    <span class="price fs-2">Rs. {{ total }}</span>
                 </div>
-
-                <button id="pay-btn"
-                        class="btn btn-primary btn-lg w-100 py-3">
-
-                    Pay Securely
-                </button>
-
-                <div class="mt-4 text-muted small">
-                    Powered by Razorpay
-                </div>
-
             </div>
 
+            {% if demo_mode %}
+                <form method="POST">
+                    {% csrf_token %}
+                    <button class="btn btn-primary btn-lg w-100 py-3">
+                        <i class="bi bi-check-circle"></i> Confirm demo payment
+                    </button>
+                </form>
+            {% else %}
+                <button id="pay-btn" class="btn btn-primary btn-lg w-100 py-3">
+                    <i class="bi bi-credit-card"></i> Pay with Razorpay
+                </button>
+            {% endif %}
+
+            <div class="d-flex flex-wrap gap-2 mt-4">
+                <span class="soft-badge"><i class="bi bi-credit-card"></i> Cards</span>
+                <span class="soft-badge"><i class="bi bi-phone"></i> UPI</span>
+                <span class="soft-badge"><i class="bi bi-bank"></i> Net banking</span>
+                <span class="soft-badge"><i class="bi bi-receipt"></i> Invoice ready</span>
+            </div>
         </div>
-
     </div>
+</section>
+{% endblock %}
 
-</div>
-
+{% block extra_scripts %}
+{% if not demo_mode %}
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-
 <script>
-
-var options = {
-
-    "key": "{{ razorpay_key }}",
-
-    "amount": "{{ payment.amount }}",
-
-    "currency": "INR",
-
-    "name": "PyShop",
-
-    "description": "Complete Your Purchase",
-
-    "image": "https://cdn-icons-png.flaticon.com/512/3081/3081559.png",
-
-    "order_id": "{{ payment.id }}",
-
-    "method": {
-        "upi": true,
-        "card": true,
-        "netbanking": true,
-        "wallet": true
+const options = {
+    key: "{{ razorpay_key }}",
+    amount: "{{ payment.amount }}",
+    currency: "INR",
+    name: "PyShop",
+    description: "Complete your PyShop purchase",
+    order_id: "{{ payment.id }}",
+    method: { upi: true, card: true, netbanking: true, wallet: true },
+    prefill: {
+        name: "{{ request.user.username }}",
+        email: "customer@example.com"
     },
-
-    "prefill": {
-        "name": "{{ request.user.username }}",
-        "email": "customer@example.com"
-    },
-
-    "theme": {
-        "color": "#2563eb"
-    },
-
-    "handler": function (response) {
-
-        fetch("/verify-payment/", {
-
+    theme: { color: "#2f6bff" },
+    handler: function (response) {
+        fetch("{% url 'verify_payment' %}", {
             method: "POST",
-
             headers: {
                 "Content-Type": "application/json",
                 "X-CSRFToken": "{{ csrf_token }}"
             },
-
             body: JSON.stringify({
-
                 razorpay_payment_id: response.razorpay_payment_id,
-
                 razorpay_order_id: response.razorpay_order_id,
-
                 razorpay_signature: response.razorpay_signature
-
             })
-
         })
-
         .then(res => res.json())
-
         .then(data => {
-
-            if(data.status === "success"){
-
-                window.location.href = "/payment-success/";
-
+            if (data.status === "success") {
+                window.location.href = "{% url 'payment_success' %}";
             } else {
-
-                alert("Payment verification failed");
-
+                alert(data.message || "Payment verification failed");
             }
-
         });
-
     }
-
 };
 
-var rzp = new Razorpay(options);
-
-document.getElementById('pay-btn').onclick = function(e){
-
+const rzp = new Razorpay(options);
+document.getElementById("pay-btn").onclick = function (event) {
     rzp.open();
-
-    e.preventDefault();
-
-}
-
+    event.preventDefault();
+};
 </script>
-
+{% endif %}
 {% endblock %}

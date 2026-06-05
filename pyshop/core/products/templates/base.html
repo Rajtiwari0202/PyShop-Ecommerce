@@ -3,217 +3,333 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}PyShop - Curated Commerce{% endblock %}</title>
 
-    <title>PyShop</title>
-
-    <!-- Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-
-    <!-- Bootstrap Icons -->
-    <link rel="stylesheet"
-          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-
-    <!-- Google Font -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
-          rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
     <style>
-
-        *{
-            font-family: 'Poppins', sans-serif;
+        :root {
+            --ink: #10131f;
+            --muted: #667085;
+            --line: rgba(16, 19, 31, 0.1);
+            --surface: #ffffff;
+            --wash: #f5f7fb;
+            --night: #0b1020;
+            --brand: #2f6bff;
+            --brand-2: #18c8a7;
+            --accent: #ff7a59;
+            --gold: #f6b944;
         }
 
-        body{
-            background:#f4f7fb;
-            color:#1e293b;
+        * {
+            font-family: "Inter", system-ui, sans-serif;
         }
 
-        .navbar{
-            backdrop-filter: blur(12px);
-            background: rgba(15,23,42,0.95);
+        body {
+            min-height: 100vh;
+            color: var(--ink);
+            background:
+                radial-gradient(circle at 5% 0%, rgba(47, 107, 255, 0.12), transparent 30rem),
+                radial-gradient(circle at 90% 10%, rgba(24, 200, 167, 0.12), transparent 28rem),
+                var(--wash);
         }
 
-        .navbar-brand{
-            font-size:1.5rem;
-            font-weight:700;
-            letter-spacing:1px;
+        a {
+            text-decoration: none;
         }
 
-        .search-box{
-            width:380px;
+        .navbar {
+            background: rgba(255, 255, 255, 0.86);
+            border-bottom: 1px solid var(--line);
+            backdrop-filter: blur(18px);
         }
 
-        .card{
-            border:none;
-            border-radius:18px;
-            overflow:hidden;
-            transition:0.3s ease;
+        .brand-mark {
+            display: grid;
+            width: 42px;
+            height: 42px;
+            place-items: center;
+            border-radius: 12px;
+            color: white;
+            background: linear-gradient(135deg, var(--brand), var(--brand-2));
+            box-shadow: 0 16px 34px rgba(47, 107, 255, 0.22);
         }
 
-        .card:hover{
-            transform:translateY(-5px);
-            box-shadow:0 15px 30px rgba(0,0,0,0.08);
+        .navbar-brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: var(--ink) !important;
+            font-size: 1rem;
+            font-weight: 900;
+            letter-spacing: 0;
         }
 
-        .btn{
-            border-radius:12px;
-            font-weight:500;
-            padding:10px 18px;
+        .brand-subtitle {
+            display: block;
+            color: var(--muted);
+            font-size: 0.72rem;
+            font-weight: 600;
         }
 
-        .btn-primary{
-            background:#2563eb;
-            border:none;
+        .nav-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            min-height: 40px;
+            padding: 0.45rem 0.72rem !important;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            color: var(--ink) !important;
+            background: rgba(255, 255, 255, 0.7);
+            font-weight: 700;
         }
 
-        .btn-primary:hover{
-            background:#1d4ed8;
+        .count-badge {
+            display: inline-grid;
+            min-width: 22px;
+            height: 22px;
+            place-items: center;
+            border-radius: 999px;
+            color: white;
+            background: var(--brand);
+            font-size: 0.72rem;
         }
 
-        .btn-dark{
-            background:#0f172a;
+        .search-control {
+            min-width: min(380px, 42vw);
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            overflow: hidden;
+            background: white;
         }
 
-        footer{
-            background:#0f172a;
-            color:white;
+        .search-control .form-control,
+        .search-control .btn {
+            border: 0;
+            border-radius: 0;
         }
 
-        .glass{
-            background: rgba(255,255,255,0.7);
-            backdrop-filter: blur(12px);
-            border:1px solid rgba(255,255,255,0.3);
+        .btn {
+            border-radius: 12px;
+            font-weight: 800;
         }
 
-        @media(max-width:768px){
-            .search-box{
-                width:100%;
-                margin:10px 0;
+        .btn-primary {
+            border: 0;
+            background: linear-gradient(135deg, var(--brand), #6b8cff);
+            box-shadow: 0 14px 30px rgba(47, 107, 255, 0.2);
+        }
+
+        .btn-success {
+            border: 0;
+            background: linear-gradient(135deg, #14b88f, var(--brand-2));
+        }
+
+        .btn-dark {
+            border: 0;
+            background: var(--night);
+        }
+
+        .btn-outline-dark,
+        .btn-outline-primary,
+        .btn-outline-danger {
+            border-color: var(--line);
+        }
+
+        .app-container {
+            width: min(1180px, calc(100% - 2rem));
+            margin: 0 auto;
+        }
+
+        .content-shell {
+            padding-top: 2rem;
+        }
+
+        .panel {
+            border: 1px solid var(--line);
+            border-radius: 18px;
+            background: rgba(255, 255, 255, 0.82);
+            box-shadow: 0 24px 70px rgba(16, 19, 31, 0.08);
+            backdrop-filter: blur(16px);
+        }
+
+        .section-title {
+            margin: 0;
+            font-size: clamp(2rem, 5vw, 4rem);
+            font-weight: 900;
+            line-height: 0.98;
+            letter-spacing: 0;
+        }
+
+        .section-copy {
+            color: var(--muted);
+            font-size: 1.02rem;
+            line-height: 1.7;
+        }
+
+        .kicker {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            width: fit-content;
+            margin-bottom: 0.9rem;
+            padding: 0.42rem 0.68rem;
+            border: 1px solid rgba(24, 200, 167, 0.25);
+            border-radius: 999px;
+            color: #08735f;
+            background: rgba(24, 200, 167, 0.1);
+            font-size: 0.8rem;
+            font-weight: 900;
+        }
+
+        .product-card {
+            height: 100%;
+            border: 1px solid var(--line);
+            border-radius: 18px;
+            overflow: hidden;
+            background: white;
+            transition: transform 180ms ease, box-shadow 180ms ease;
+        }
+
+        .product-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 28px 70px rgba(16, 19, 31, 0.12);
+        }
+
+        .product-image {
+            height: 235px;
+            width: 100%;
+            object-fit: cover;
+            background: #edf2f7;
+        }
+
+        .price {
+            color: #08735f;
+            font-size: 1.25rem;
+            font-weight: 900;
+        }
+
+        .soft-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.42rem 0.62rem;
+            border-radius: 999px;
+            color: #344054;
+            background: #f2f4f7;
+            font-size: 0.78rem;
+            font-weight: 800;
+        }
+
+        .metric-card {
+            padding: 1rem;
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.72);
+        }
+
+        .metric-card strong {
+            display: block;
+            font-size: 1.45rem;
+            font-weight: 900;
+        }
+
+        .footer {
+            margin-top: 4rem;
+            padding: 2rem 0;
+            color: #cbd5e1;
+            background: var(--night);
+        }
+
+        @media (max-width: 992px) {
+            .search-control {
+                min-width: 100%;
+                margin: 0.8rem 0;
             }
         }
-
     </style>
+
+    {% block extra_head %}{% endblock %}
 </head>
-
 <body>
-
-<!-- NAVBAR -->
-
-<nav class="navbar navbar-expand-lg navbar-dark sticky-top shadow-sm">
-    <div class="container">
-
-        <a class="navbar-brand" href="/">
-            🛍 PyShop
+<nav class="navbar navbar-expand-lg sticky-top">
+    <div class="app-container">
+        <a class="navbar-brand" href="{% url 'product_list' %}">
+            <span class="brand-mark"><i class="bi bi-bag-heart-fill"></i></span>
+            <span>
+                PyShop
+                <span class="brand-subtitle">Premium Django commerce</span>
+            </span>
         </a>
 
-        <button class="navbar-toggler"
-                type="button"
-                data-bs-toggle="collapse"
-                data-bs-target="#navbarContent">
-
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
             <span class="navbar-toggler-icon"></span>
         </button>
 
         <div class="collapse navbar-collapse" id="navbarContent">
-
-            <!-- SEARCH -->
-
-            <form class="d-flex mx-auto search-box" method="GET" action="/">
-                <input class="form-control me-2"
-                       name="q"
-                       placeholder="Search products..."
-                       value="{{ request.GET.q }}">
-
-                <button class="btn btn-primary">
-                    <i class="bi bi-search"></i>
-                </button>
+            <form class="input-group search-control mx-lg-auto" method="GET" action="{% url 'product_list' %}">
+                <input class="form-control" name="q" placeholder="Search curated products..." value="{{ request.GET.q }}">
+                <button class="btn btn-primary" aria-label="Search"><i class="bi bi-search"></i></button>
             </form>
 
-            <!-- RIGHT -->
-
-            <ul class="navbar-nav ms-auto align-items-center">
-
+            <ul class="navbar-nav ms-auto align-items-lg-center gap-2">
                 {% if user.is_authenticated %}
-
-                <li class="nav-item me-3">
-                    <a class="nav-link" href="{% url 'wishlist' %}">
-                        ❤️ Wishlist
-                    </a>
-                </li>
-
-                <li class="nav-item me-3">
-                    <a class="nav-link" href="{% url 'cart' %}">
-                        🛒 Cart
-                    </a>
-                </li>
-
-                <li class="nav-item me-3">
-                    <a class="nav-link" href="{% url 'order_history' %}">
-                        📦 Orders
-                    </a>
-                </li>
-
-                <li class="nav-item me-3">
-                    <span class="nav-link">
-                        👋 {{ user.username }}
-                    </span>
-                </li>
-
-                <li class="nav-item">
-                    <a href="{% url 'logout' %}" class="btn btn-danger btn-sm">
-                        Logout
-                    </a>
-                </li>
-
+                    <li class="nav-item">
+                        <a class="nav-link nav-pill" href="{% url 'wishlist' %}">
+                            <i class="bi bi-heart"></i> Wishlist <span class="count-badge">{{ wishlist_count }}</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-pill" href="{% url 'cart' %}">
+                            <i class="bi bi-bag"></i> Cart <span class="count-badge">{{ cart_count }}</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-pill" href="{% url 'order_history' %}">
+                            <i class="bi bi-truck"></i> Orders
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <span class="nav-link nav-pill"><i class="bi bi-person-circle"></i> {{ user.username }}</span>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'logout' %}" class="btn btn-dark btn-sm">Logout</a>
+                    </li>
                 {% else %}
-
-                <li class="nav-item me-2">
-                    <a href="{% url 'login' %}" class="btn btn-success btn-sm">
-                        Login
-                    </a>
-                </li>
-
-                <li class="nav-item">
-                    <a href="{% url 'signup' %}" class="btn btn-primary btn-sm">
-                        Signup
-                    </a>
-                </li>
-
+                    <li class="nav-item">
+                        <a href="{% url 'login' %}" class="btn btn-outline-dark btn-sm">Login</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'signup' %}" class="btn btn-primary btn-sm">Create account</a>
+                    </li>
                 {% endif %}
-
             </ul>
-
         </div>
     </div>
 </nav>
 
-<!-- FLASH MESSAGES -->
-
-<div class="container mt-3">
+<main class="app-container content-shell">
     {% for message in messages %}
-    <div class="alert alert-{{ message.tags }} alert-dismissible fade show shadow-sm">
-        {{ message }}
-        <button class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show panel" role="alert">
+            {{ message }}
+            <button class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
     {% endfor %}
-</div>
 
-<!-- MAIN -->
+    {% block content %}{% endblock %}
+</main>
 
-<div class="container py-4">
-    {% block content %}
-    {% endblock %}
-</div>
-
-<!-- FOOTER -->
-
-<footer class="text-center py-4 mt-5">
-    <p class="mb-0">
-        © 2026 PyShop • Built with Django + Razorpay 🚀
-    </p>
+<footer class="footer">
+    <div class="app-container d-flex flex-wrap justify-content-between align-items-center gap-3">
+        <p class="mb-0">PyShop - Django e-commerce with cart, wishlist, reviews, payments, invoices, and order tracking.</p>
+        <span class="soft-badge bg-white text-dark"><i class="bi bi-shield-check"></i> Secure checkout ready</span>
+    </div>
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
+{% block extra_scripts %}{% endblock %}
 </body>
 </html>

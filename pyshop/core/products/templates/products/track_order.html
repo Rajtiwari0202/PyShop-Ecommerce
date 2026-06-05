@@ -1,288 +1,92 @@
 {% extends 'base.html' %}
 
-{% block content %}
+{% block title %}Track Order #{{ order.id }} - PyShop{% endblock %}
 
+{% block extra_head %}
 <style>
+    .tracker {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 0.75rem;
+    }
 
-.track-container {
-    max-width: 900px;
-    margin: auto;
-}
+    .tracker-step {
+        padding: 1rem;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        background: white;
+        text-align: center;
+    }
 
-.order-card {
-    border-radius: 22px;
-    overflow: hidden;
-}
+    .tracker-step.active {
+        color: white;
+        background: linear-gradient(135deg, var(--brand), var(--brand-2));
+    }
 
-.status-step {
-    flex: 1;
-    text-align: center;
-    position: relative;
-}
-
-.status-step::after {
-    content: '';
-    position: absolute;
-    top: 22px;
-    left: 50%;
-    width: 100%;
-    height: 4px;
-    background: #ddd;
-    z-index: 0;
-}
-
-.status-step:last-child::after {
-    display: none;
-}
-
-.status-circle {
-    width: 45px;
-    height: 45px;
-    border-radius: 50%;
-    background: #ddd;
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: auto;
-    position: relative;
-    z-index: 2;
-    font-size: 20px;
-}
-
-.active .status-circle {
-    background: #16a34a;
-}
-
-.active .status-title {
-    color: #16a34a;
-    font-weight: bold;
-}
-
-.timeline-card {
-    border-radius: 18px;
-}
-
+    @media (max-width: 768px) {
+        .tracker {
+            grid-template-columns: 1fr;
+        }
+    }
 </style>
+{% endblock %}
 
-<div class="track-container">
-
-    <!-- HEADER -->
-
-    <div class="card shadow-lg border-0 order-card mb-5">
-
-        <div class="card-body p-5">
-
-            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
-
-                <div>
-
-                    <h2 class="fw-bold mb-2">
-                        📦 Track Your Order
-                    </h2>
-
-                    <p class="text-muted mb-0">
-                        Order ID #{{ order.id }}
-                    </p>
-
-                </div>
-
-                <div class="text-end">
-
-                    <h3 class="text-success fw-bold">
-                        ₹{{ order.total_amount }}
-                    </h3>
-
-                    <span class="badge bg-success px-3 py-2">
-                        {{ order.status }}
-                    </span>
-
-                </div>
-
-            </div>
-
+{% block content %}
+<section class="panel p-4 p-lg-5 mb-4">
+    <div class="d-flex flex-wrap justify-content-between align-items-start gap-3">
+        <div>
+            <span class="kicker"><i class="bi bi-radar"></i> Delivery intelligence</span>
+            <h1 class="section-title">Track order #{{ order.id }}.</h1>
+            <p class="section-copy mb-0">Follow status movement from confirmation to delivery.</p>
         </div>
-
-    </div>
-
-    <!-- STATUS TRACKER -->
-
-    <div class="card shadow-sm border-0 p-5 mb-5">
-
-        <div class="d-flex justify-content-between flex-wrap gap-4">
-
-            <!-- PENDING -->
-
-            <div class="status-step
-                {% if order.status == 'Pending' or order.status == 'Confirmed' or order.status == 'Shipped' or order.status == 'Out for Delivery' or order.status == 'Delivered' %}
-                active
-                {% endif %}
-            ">
-
-                <div class="status-circle">
-                    🕒
-                </div>
-
-                <div class="status-title mt-3">
-                    Pending
-                </div>
-
-            </div>
-
-            <!-- CONFIRMED -->
-
-            <div class="status-step
-                {% if order.status == 'Confirmed' or order.status == 'Shipped' or order.status == 'Out for Delivery' or order.status == 'Delivered' %}
-                active
-                {% endif %}
-            ">
-
-                <div class="status-circle">
-                    ✅
-                </div>
-
-                <div class="status-title mt-3">
-                    Confirmed
-                </div>
-
-            </div>
-
-            <!-- SHIPPED -->
-
-            <div class="status-step
-                {% if order.status == 'Shipped' or order.status == 'Out for Delivery' or order.status == 'Delivered' %}
-                active
-                {% endif %}
-            ">
-
-                <div class="status-circle">
-                    🚚
-                </div>
-
-                <div class="status-title mt-3">
-                    Shipped
-                </div>
-
-            </div>
-
-            <!-- OUT FOR DELIVERY -->
-
-            <div class="status-step
-                {% if order.status == 'Out for Delivery' or order.status == 'Delivered' %}
-                active
-                {% endif %}
-            ">
-
-                <div class="status-circle">
-                    📍
-                </div>
-
-                <div class="status-title mt-3">
-                    Out for Delivery
-                </div>
-
-            </div>
-
-            <!-- DELIVERED -->
-
-            <div class="status-step
-                {% if order.status == 'Delivered' %}
-                active
-                {% endif %}
-            ">
-
-                <div class="status-circle">
-                    🎉
-                </div>
-
-                <div class="status-title mt-3">
-                    Delivered
-                </div>
-
-            </div>
-
+        <div class="text-end">
+            <div class="price fs-2">Rs. {{ order.total_amount }}</div>
+            <span class="soft-badge bg-success text-white">{{ order.status }}</span>
         </div>
-
     </div>
+</section>
 
-    <!-- DELIVERY INFO -->
-
-    <div class="row g-4">
-
-        <!-- DELIVERY DETAILS -->
-
-        <div class="col-lg-6">
-
-            <div class="card border-0 shadow-sm p-4 timeline-card h-100">
-
-                <h4 class="fw-bold mb-4">
-                    🚚 Delivery Details
-                </h4>
-
-                <p class="mb-3">
-                    <strong>Estimated Delivery:</strong>
-                    3-5 Business Days
-                </p>
-
-                <p class="mb-3">
-                    <strong>Shipping Partner:</strong>
-                    PyShop Express
-                </p>
-
-                <p class="mb-0">
-                    <strong>Payment:</strong>
-                    Paid Successfully
-                </p>
-
-            </div>
-
+<section class="panel p-4 mb-4">
+    <div class="tracker">
+        <div class="tracker-step {% if order.status == 'Pending' or order.status == 'Confirmed' or order.status == 'Shipped' or order.status == 'Out for Delivery' or order.status == 'Delivered' %}active{% endif %}">
+            <i class="bi bi-clock-history fs-3"></i>
+            <div class="fw-bold mt-2">Pending</div>
         </div>
-
-        <!-- SUPPORT -->
-
-        <div class="col-lg-6">
-
-            <div class="card border-0 shadow-sm p-4 timeline-card h-100">
-
-                <h4 class="fw-bold mb-4">
-                    ☎ Need Help?
-                </h4>
-
-                <p class="text-muted">
-                    Facing issues with your order?
-                    Contact our support team anytime.
-                </p>
-
-                <button class="btn btn-dark mt-2">
-                    Contact Support
-                </button>
-
-            </div>
-
+        <div class="tracker-step {% if order.status == 'Confirmed' or order.status == 'Shipped' or order.status == 'Out for Delivery' or order.status == 'Delivered' %}active{% endif %}">
+            <i class="bi bi-check2-circle fs-3"></i>
+            <div class="fw-bold mt-2">Confirmed</div>
         </div>
-
+        <div class="tracker-step {% if order.status == 'Shipped' or order.status == 'Out for Delivery' or order.status == 'Delivered' %}active{% endif %}">
+            <i class="bi bi-box-seam fs-3"></i>
+            <div class="fw-bold mt-2">Shipped</div>
+        </div>
+        <div class="tracker-step {% if order.status == 'Out for Delivery' or order.status == 'Delivered' %}active{% endif %}">
+            <i class="bi bi-truck fs-3"></i>
+            <div class="fw-bold mt-2">Out for delivery</div>
+        </div>
+        <div class="tracker-step {% if order.status == 'Delivered' %}active{% endif %}">
+            <i class="bi bi-house-check fs-3"></i>
+            <div class="fw-bold mt-2">Delivered</div>
+        </div>
     </div>
+</section>
 
-    <!-- ACTION BUTTONS -->
-
-    <div class="text-center mt-5">
-
-        <a href="{% url 'order_history' %}"
-           class="btn btn-outline-dark px-4 py-2">
-
-            📦 Back to Orders
-
-        </a>
-
-        <a href="/"
-           class="btn btn-primary px-4 py-2 ms-2">
-
-            Continue Shopping
-
-        </a>
-
+<section class="row g-4">
+    <div class="col-lg-6">
+        <div class="panel p-4 h-100">
+            <h3 class="fw-black mb-3"><i class="bi bi-info-circle"></i> Delivery details</h3>
+            <p><strong>Estimated delivery:</strong> 3-5 business days</p>
+            <p><strong>Shipping partner:</strong> PyShop Express</p>
+            <p class="mb-0"><strong>Payment reference:</strong> {{ order.razorpay_payment_id|default:"Not captured" }}</p>
+        </div>
     </div>
-
-</div>
-
+    <div class="col-lg-6">
+        <div class="panel p-4 h-100">
+            <h3 class="fw-black mb-3"><i class="bi bi-headset"></i> Support</h3>
+            <p class="text-muted">A customer support panel is staged here for refund, return, and delivery issue workflows.</p>
+            <a href="{% url 'order_history' %}" class="btn btn-dark"><i class="bi bi-arrow-left"></i> Back to orders</a>
+            <a href="{% url 'product_list' %}" class="btn btn-primary"><i class="bi bi-bag"></i> Continue shopping</a>
+        </div>
+    </div>
+</section>
 {% endblock %}

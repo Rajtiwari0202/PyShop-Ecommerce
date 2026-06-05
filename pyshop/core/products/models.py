@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from decimal import Decimal
 
 class Category(models.Model):
     name = models.CharField(max_length=100)
@@ -9,7 +10,7 @@ class Category(models.Model):
     
 class Product(models.Model):
     name = models.CharField(max_length=200)
-    price = models.FloatField()
+    price = models.DecimalField(max_digits=10, decimal_places=2)
     description = models.TextField()
     image_url = models.URLField(blank=True)
 
@@ -24,7 +25,7 @@ class Cart(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def total_price(self):
-        return sum(item.total_price() for item in self.items.all())
+        return sum((item.total_price() for item in self.items.all()), Decimal("0.00"))
 
 
 class CartItem(models.Model):
@@ -72,7 +73,7 @@ class OrderItem(models.Model):
     order = models.ForeignKey(Order, related_name='items', on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.IntegerField()
-    price = models.FloatField()
+    price = models.DecimalField(max_digits=10, decimal_places=2)
 
 
 class Wishlist(models.Model):

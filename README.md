@@ -1,271 +1,102 @@
-# 🛍 PyShop — Modern Django E-Commerce Platform
+# PyShop - Premium Django E-Commerce Platform
 
-PyShop is a full-stack modern e-commerce web application built using Django.  
-It includes authentication, cart system, Razorpay payment integration, wishlist, reviews, invoices, order tracking, and a responsive modern UI.
+PyShop is a full-stack Django commerce application with a polished storefront, authentication, cart management, wishlist, reviews, checkout, invoices, and order tracking. It is designed to be easy to run locally and strong enough to discuss in interviews as a complete product workflow.
 
----
+## Highlights
 
-# 🚀 Features
+- Premium responsive storefront with search, category filters, price filters, and product detail pages.
+- Authentication-protected cart, wishlist, checkout, reviews, orders, tracking, and invoices.
+- Razorpay integration with server-side signature verification.
+- Demo checkout mode when Razorpay keys are not configured, so reviewers can complete the full purchase flow locally.
+- Decimal-based money fields for safer totals.
+- Django admin support for products, categories, orders, reviews, and wishlists.
+- Demo catalog seeding command for screenshots and portfolio walkthroughs.
 
-## 🔐 Authentication System
-- User Signup
-- User Login / Logout
-- Protected routes using Django authentication
+## Tech Stack
 
-## 🛒 Shopping Features
-- Add to Cart
-- Remove from Cart
-- Increase / Decrease Quantity
-- Wishlist System
-- Buy Now functionality
+| Layer | Tools |
+| --- | --- |
+| Backend | Python, Django |
+| Database | SQLite for local development |
+| Payments | Razorpay test integration plus demo mode |
+| UI | Django templates, Bootstrap 5, Bootstrap Icons |
+| Documents | ReportLab PDF invoices |
+| Config | python-dotenv |
 
-## 💳 Payment Gateway
-- Razorpay Integration
-- Secure Payment Verification
-- UPI / Card / Net Banking support
-- Payment Success Flow
+## Local Setup
 
-## 📦 Order Management
-- Order History
-- Track Orders
-- Invoice Download System
-- Real-time Order Status
-
-## ⭐ Product Reviews
-- Product Ratings
-- Customer Reviews
-- Average Rating System
-
-## 🔍 Product Features
-- Product Search
-- Category Filtering
-- Price Filtering
-- Related Products
-
-## 🎨 Modern UI
-- Responsive Bootstrap 5 Design
-- Toast Notifications
-- Beautiful Product Cards
-- Mobile-Friendly Layout
-- Smooth Hover Effects
-
----
-
-# 🛠 Tech Stack
-
-| Technology | Usage |
-|------------|-------|
-| Python | Backend |
-| Django | Web Framework |
-| SQLite | Database |
-| Razorpay | Payment Gateway |
-| Bootstrap 5 | Frontend Styling |
-| HTML/CSS | Frontend |
-| JavaScript | Dynamic Features |
-
----
-
-# 📂 Project Structure
-
-```bash
-pyshop/
-│
-├── core/
-│   ├── products/
-│   │   ├── migrations/
-│   │   ├── templates/
-│   │   │   └── products/
-│   │   ├── admin.py
-│   │   ├── models.py
-│   │   ├── urls.py
-│   │   ├── views.py
-│   │   └── context_processors.py
-│   │
-│   ├── core/
-│   └── manage.py
-│
-└── README.md
-```
-
----
-
-# ⚙️ Installation
-
-## 1️⃣ Clone Repository
-
-```bash
-git clone https://github.com/YOUR_USERNAME/PyShop-Ecommerce.git
-```
-
-## 2️⃣ Navigate to Project
-
-```bash
+```powershell
+git clone https://github.com/Rajtiwari0202/PyShop-Ecommerce.git
 cd PyShop-Ecommerce
-```
-
-## 3️⃣ Create Virtual Environment
-
-```bash
-python -m venv venv
-```
-
-## 4️⃣ Activate Virtual Environment
-
-### Windows
-
-```bash
-venv\Scripts\activate
-```
-
-### Linux / Mac
-
-```bash
-source venv/bin/activate
-```
-
----
-
-# 📦 Install Dependencies
-
-```bash
+py -m venv venv
+.\venv\Scripts\Activate.ps1
 pip install -r requirements.txt
+Copy-Item .env.example .env
+cd pyshop\core
+py manage.py migrate
+py manage.py seed_demo
+py manage.py createsuperuser
+py manage.py runserver
 ```
 
----
+Open:
 
-# 🔑 Setup Environment Variables
-
-Create a `.env` file:
-
-```env
-RAZORPAY_KEY_ID=your_key
-RAZORPAY_KEY_SECRET=your_secret
-SECRET_KEY=your_django_secret
-DEBUG=True
-```
-
----
-
-# 🗄 Run Migrations
-
-```bash
-python manage.py makemigrations
-python manage.py migrate
-```
-
----
-
-# 👤 Create Superuser
-
-```bash
-python manage.py createsuperuser
-```
-
----
-
-# ▶ Run Server
-
-```bash
-python manage.py runserver
-```
-
-Visit:
-
-```bash
+```text
 http://127.0.0.1:8000/
 ```
 
----
+## Demo Checkout
 
-# 💳 Razorpay Test Payment
+If `RAZORPAY_KEY_ID` and `RAZORPAY_KEY_SECRET` are blank, the app automatically enables demo checkout mode. This lets anyone add items to cart, confirm payment, generate an order, track it, and view the order history without external credentials.
 
-Use Razorpay Test Mode:
+To use Razorpay test mode, set both keys in `.env`.
 
-### Test Card
+## Useful Commands
 
-```text
-Card Number: 4111 1111 1111 1111
-Expiry: Any future date
-CVV: Any 3 digits
-OTP: 1234
+```powershell
+cd pyshop\core
+py manage.py check
+py manage.py test
+py manage.py seed_demo
+py manage.py runserver
 ```
 
-### Test UPI
+## Resume Bullets
+
+- Built a Django e-commerce platform with product discovery, category and price filtering, authenticated cart, wishlist, reviews, checkout, order tracking, and PDF invoice generation.
+- Integrated Razorpay payment verification with a local demo checkout fallback to make the full purchase workflow reviewable without external credentials.
+- Improved production readiness by moving secrets to environment variables, using Decimal money fields, adding admin tooling, and optimizing query access with `select_related` and `prefetch_related`.
+- Designed a premium responsive storefront using Django templates, Bootstrap 5, and reusable UI patterns for a polished portfolio presentation.
+
+## Interview Talking Points
+
+- Why money values use `DecimalField` instead of float.
+- How Razorpay signature verification protects the payment flow.
+- How demo checkout mode improves project reviewability.
+- How Django auth decorators protect cart, checkout, wishlist, orders, and reviews.
+- How the order lifecycle is represented through `Order` and `OrderItem`.
+
+## Project Structure
 
 ```text
-success@razorpay
+PyShop-Ecommerce/
+├── requirements.txt
+├── .env.example
+├── pyshop/
+│   └── core/
+│       ├── manage.py
+│       ├── pyshop_project/
+│       └── products/
+│           ├── management/commands/seed_demo.py
+│           ├── migrations/
+│           ├── templates/
+│           ├── admin.py
+│           ├── models.py
+│           ├── urls.py
+│           └── views.py
 ```
 
----
+## Author
 
-# 📸 Screenshots
-
-## 🏠 Homepage
-- Product Listing
-- Filters
-- Search System
-
-## 🛒 Cart Page
-- Quantity Controls
-- Dynamic Total
-
-## 💳 Payment Page
-- Razorpay Checkout
-- UPI Payments
-
-## 📦 Orders
-- Order Tracking
-- Invoice Download
-
----
-
-# 🔥 Future Improvements
-
-- PostgreSQL Integration
-- Docker Deployment
-- AI Product Recommendations
-- Email Invoice System
-- REST API
-- React Frontend
-- Admin Analytics Dashboard
-- Redis Caching
-- Coupon System
-
----
-
-# 📚 What I Learned
-
-- Django Authentication
-- Payment Gateway Integration
-- Database Relationships
-- Secure Payment Verification
-- Dynamic UI Rendering
-- E-Commerce Workflows
-- Full Stack Development
-
----
-
-# 👨‍💻 Author
-
-## Raj Tiwari
-
-Built with ❤️ using Django
-
-GitHub:
-https://github.com/RajTiwari0202
-
----
-
-# ⭐ Support
-
-If you like this project:
-
-- Star this repository ⭐
-- Fork it 🍴
-- Share it 🚀
-
----
-
-# 📄 License
-
-This project is for educational purposes.
+Raj Tiwari  
+GitHub: https://github.com/Rajtiwari0202

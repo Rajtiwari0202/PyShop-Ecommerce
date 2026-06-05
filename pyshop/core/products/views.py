@@ -19,9 +19,28 @@ from .models import (
 )
 import json
 from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
 
-@csrf_exempt
+
+def create_order_from_cart(user, cart, status="Confirmed", payment_id="demo-checkout"):
+    order = Order.objects.create(
+        user=user,
+        total_amount=cart.total_price(),
+        status=status,
+        razorpay_payment_id=payment_id
+    )
+
+    for item in cart.items.select_related("product"):
+        OrderItem.objects.create(
+            order=order,
+            product=item.product,
+            quantity=item.quantity,
+            price=item.product.price
+        )
+
+    cart.items.all().delete()
+    return order
+
+
 @login_required
 def verify_payment(request):
     if request.method == "POST":
@@ -43,22 +62,12 @@ def verify_payment(request):
             # ✅ Signature valid → create order
             cart = Cart.objects.get(user=request.user)
 
-            order = Order.objects.create(
+            create_order_from_cart(
                 user=request.user,
-                total_amount=cart.total_price(),
+                cart=cart,
                 status="Confirmed",
-                razorpay_payment_id=razorpay_payment_id
+                payment_id=razorpay_payment_id
             )
-
-            for item in cart.items.all():
-                OrderItem.objects.create(
-                    order=order,
-                    product=item.product,
-                    quantity=item.quantity,
-                    price=item.product.price
-                )
-
-            cart.items.all().delete()
 
             return JsonResponse({"status": "success"})
 
@@ -114,7 +123,7 @@ def product_list(request):
     min_price = request.GET.get('min_price')
     max_price = request.GET.get('max_price')
 
-    products = Product.objects.all()
+    products = Product.objects.select_related("category").all()
     categories = Category.objects.all()
     wishlist_items = []
 
@@ -152,7 +161,7 @@ def product_detail(request, id):
         category=product.category
     ).exclude(id=product.id)[:4]
 
-    reviews = product.reviews.all().order_by('-created_at')
+    reviews = product.reviews.select_related("user").all().order_by('-created_at')
 
     average_rating = 0
 
@@ -174,7 +183,7 @@ def product_detail(request, id):
 def cart_view(request):
     cart, _ = Cart.objects.get_or_create(user=request.user)
 
-    cart_items = cart.items.all()
+    cart_items = cart.items.select_related("product").all()
     total_price = cart.total_price()
 
     return render(request, 'products/cart.html', {
@@ -248,11 +257,27 @@ def decrease_quantity(request, id):
 
 @login_required
 def checkout(request):
-    cart = Cart.objects.get(user=request.user)
+    cart, _ = Cart.objects.get_or_create(user=request.user)
 
     if cart.items.count() == 0:
         messages.warning(request, "Your cart is empty")
         return redirect('cart')
+
+    if settings.PAYMENT_DEMO_MODE:
+        if request.method == "POST":
+            order = create_order_from_cart(
+                user=request.user,
+                cart=cart,
+                status="Confirmed",
+                payment_id="demo-checkout"
+            )
+            messages.success(request, f"Demo checkout completed. Order #{order.id} is confirmed.")
+            return redirect('order_history')
+
+        return render(request, "products/payment.html", {
+            "demo_mode": True,
+            "total": cart.total_price(),
+        })
 
     total = int(cart.total_price() * 100)
 
@@ -267,6 +292,7 @@ def checkout(request):
     })
 
     return render(request, "products/payment.html", {
+        "demo_mode": False,
         "payment": payment,
         "total": total // 100,
         "razorpay_key": settings.RAZORPAY_KEY_ID
@@ -277,7 +303,7 @@ def checkout(request):
 
 @login_required
 def order_history(request):
-    orders = Order.objects.filter(user=request.user).order_by('-created_at')
+    orders = Order.objects.filter(user=request.user).prefetch_related("items__product").order_by('-created_at')
 
     return render(request, 'products/order_history.html', {
         'orders': orders
@@ -308,7 +334,7 @@ def remove_from_wishlist(request, id):
 
 @login_required
 def wishlist_view(request):
-    items = Wishlist.objects.filter(user=request.user)
+    items = Wishlist.objects.filter(user=request.user).select_related("product", "product__category")
 
     return render(request, 'products/wishlist.html', {
         'items': items
